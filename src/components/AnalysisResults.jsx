@@ -1,24 +1,18 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import SimplePageFlipLoader from './SimplePageFlipLoader';
 
 const riskColors = {
-  low: { bg: '#e8f5e9', border: '#4caf50', text: '#2e7d32', label: 'Low Risk' },
-  medium: { bg: '#fff3e0', border: '#ff9800', text: '#e65100', label: 'Medium Risk' },
-  high: { bg: '#fce4ec', border: '#f44336', text: '#c62828', label: 'High Risk' },
+  low: { bg: 'var(--risk-low-bg)', border: 'var(--risk-low-border)', text: 'var(--risk-low-text)', label: 'Low Risk' },
+  medium: { bg: 'var(--risk-medium-bg)', border: 'var(--risk-medium-border)', text: 'var(--risk-medium-text)', label: 'Medium Risk' },
+  high: { bg: 'var(--risk-high-bg)', border: 'var(--risk-high-border)', text: 'var(--risk-high-text)', label: 'High Risk' },
 };
 
 export default function AnalysisResults({ results, isLoading }) {
   if (isLoading) {
     return (
       <div className="results-container loading">
-        <h2>Reviewing your document</h2>
-        <div className="book-loader">
-          <div className="page"></div>
-          <div className="page"></div>
-          <div className="page"></div>
-          <div className="page"></div>
-        </div>
-        <p className="loading-text">Reading through the fine print...</p>
+        <SimplePageFlipLoader message="Reviewing your document" />
       </div>
     );
   }
@@ -44,10 +38,46 @@ export default function AnalysisResults({ results, isLoading }) {
     const { document_type, one_line_summary, critical_points, risk_level, risk_reason } = parsedResults;
     const risk = riskColors[risk_level] || riskColors.medium;
 
+    const handleExport = () => {
+      let exportText = `# ${document_type || "Document Analysis"}\n\n`;
+      if (one_line_summary) exportText += `Summary: ${one_line_summary}\n\n`;
+      if (risk_level) exportText += `Risk Level: ${risk_level.toUpperCase()}\n`;
+      if (risk_reason) exportText += `Risk Reason: ${risk_reason}\n\n`;
+      exportText += `## Critical Points\n\n`;
+      (critical_points || []).forEach((pt, i) => {
+        exportText += `### ${i + 1}. ${pt.title} [${pt.severity?.toUpperCase()}]\n`;
+        exportText += `- What it means: ${pt.what_it_means}\n`;
+        exportText += `- Why you care: ${pt.why_you_care}\n`;
+        if (pt.your_options && pt.your_options.length) {
+          exportText += `- Options:\n` + pt.your_options.map(o => `  * ${o}`).join('\n') + '\n';
+        }
+        if (pt.source_location) exportText += `- Location: ${pt.source_location}\n`;
+        exportText += `\n`;
+      });
+
+      const blob = new Blob([exportText], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Lexora-Analysis-Report.md`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
     return (
       <div className="results-container">
         <div className="analysis-header">
-          <h2>{document_type || "Document Analysis"}</h2>
+          <div className="analysis-header-top">
+            <h2>{document_type || "Document Analysis"}</h2>
+            <button className="export-btn" onClick={handleExport} title="Download analysis report">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Export Report
+            </button>
+          </div>
           {one_line_summary && <p className="analysis-summary">{one_line_summary}</p>}
         </div>
 
