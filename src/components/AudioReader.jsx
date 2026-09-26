@@ -12,6 +12,7 @@ const AudioReader = memo(function AudioReader({
   const [speakingState, setSpeakingState] = useState('idle'); // 'idle' | 'playing' | 'paused'
   const [isSupported, setIsSupported] = useState(true);
   const utteranceRef = useRef(null);
+  const keepAliveIntervalRef = useRef(null);
 
   const t = UI_TRANSLATIONS[lang] || UI_TRANSLATIONS.en;
 
@@ -21,12 +22,20 @@ const AudioReader = memo(function AudioReader({
     }
   }, []);
 
-  const stopSpeech = useCallback(() => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      setSpeakingState('idle');
+  const clearKeepAlive = useCallback(() => {
+    if (keepAliveIntervalRef.current) {
+      clearInterval(keepAliveIntervalRef.current);
+      keepAliveIntervalRef.current = null;
     }
   }, []);
+
+  const stopSpeech = useCallback(() => {
+    clearKeepAlive();
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setSpeakingState('idle');
+  }, [clearKeepAlive]);
 
   useEffect(() => {
     return () => {
@@ -34,50 +43,119 @@ const AudioReader = memo(function AudioReader({
     };
   }, [stopSpeech]);
 
+  const getBestVoice = useCallback((targetLang) => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return null;
+    const voices = window.speechSynthesis.getVoices();
+    if (!voices || voices.length === 0) return null;
+
+    const code = (targetLang || 'en').toLowerCase().split('-')[0];
+    
+    // 1. Target language match
+    const match = voices.find(v => v.lang.toLowerCase().startsWith(code));
+    if (match) return match;
+
+    // 2. English fallback
+    const enMatch = voices.find(v => v.lang.toLowerCase().startsWith('en'));
+    if (enMatch) return enMatch;
+
+    // 3. System default voice
+    return voices.find(v => v.default) || voices[0];
+  }, []);
+
   const handlePlay = useCallback(() => {
-    if (!text || !isSupported) return;
+    if (!text || !isSupported || typeof window === 'undefined') return;
+
+    const synth = window.speechSynthesis;
 
     if (speakingState === 'paused') {
-      window.speechSynthesis.resume();
+      synth.resume();
       setSpeakingState('playing');
       announceToScreenReader(t.resumeReading || 'Resumed reading');
       return;
     }
 
     if (speakingState === 'playing') {
-      window.speechSynthesis.pause();
+      synth.pause();
       setSpeakingState('paused');
       announceToScreenReader(t.pauseReading || 'Paused reading');
       return;
     }
 
-    // Start fresh speech synthesis
-    window.speechSynthesis.cancel();
+    // Stop current speech before playing new
+    stopSpeech();
 
     const spokenText = stripMarkdownForSpeech(text);
     if (!spokenText) return;
 
-    const utterance = new SpeechSynthesisUtterance(spokenText);
-    utterance.rate = parseFloat(rate) || 1.0;
-    utterance.lang = lang || 'en';
+    // Micro delay after cancel() to fix Chromium bug where speak() is swallowed
+    setTimeout(() => {
+      // Resume synth if stuck in paused state
+      if (synth.paused) {
+        synth.resume();
+      }
 
-    utterance.onstart = () => {
-      setSpeakingState('playing');
-      announceToScreenReader(t.readAloud || 'Reading aloud');
-    };
+      // Chunk long text by sentences for maximum cross-browser reliability
+      const sentences = spokenText
+        .split(/(?<=[.!?])\s+/)
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
 
-    utterance.onend = () => {
-      setSpeakingState('idle');
-    };
+      if (sentences.length === 0) return;
 
-    utterance.onerror = (e) => {
-      console.warn('SpeechSynthesis error:', e);
-      setSpeakingState('idle');
-    };
+      let currentSentenceIndex = 0;
 
-    utteranceRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
-  }, [text, isSupported, speakingState, rate, lang, t]);
+      const speakNextChunk = () => {
+        if (currentSentenceIndex >= sentences.length) {
+          clearKeepAlive();
+          setSpeakingState('idle');
+          return;
+        }
+
+        const chunkText = sentences[currentSentenceIndex];
+        const utterance = new SpeechSynthesisUtterance(chunkText);
+        
+        utterance.rate = Math.min(Math.max(parseFloat(rate) || 1.0, 0.5), 2.0);
+        utterance.lang = lang || 'en';
+
+        const voice = getBestVoice(lang);
+        if (voice) {
+          utterance.voice = voice;
+        }
+
+        utterance.onstart = () => {
+          if (currentSentenceIndex === 0) {
+            setSpeakingState('playing');
+            announceToScreenReader(t.readAloud || 'Reading aloud');
+          }
+        };
+
+        utterance.onend = () => {
+          currentSentenceIndex++;
+          speakNextChunk();
+        };
+
+        utterance.onerror = (e) => {
+          console.warn('SpeechSynthesis chunk error:', e);
+          currentSentenceIndex++;
+          speakNextChunk();
+        };
+
+        utteranceRef.current = utterance;
+        synth.speak(utterance);
+      };
+
+      // Keepalive interval for Chromium bug where long speech pauses after 15 seconds
+      clearKeepAlive();
+      keepAliveIntervalRef.current = setInterval(() => {
+        if (synth.speaking && !synth.paused) {
+          synth.pause();
+          synth.resume();
+        }
+      }, 7000);
+
+      speakNextChunk();
+    }, 50);
+  }, [text, isSupported, speakingState, rate, lang, t, stopSpeech, getBestVoice, clearKeepAlive]);
 
   if (!isSupported || !text) return null;
 
