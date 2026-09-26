@@ -1623,3 +1623,781 @@ h1, h2, h3 {
 .qa-input-form button:hover:not(:disabled) {
   background: var(--accent-hover);
 }
+
+/* Dev Settings Security UI Elements */
+.dev-field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.toggle-key-visibility {
+  background: none;
+  border: none;
+  color: var(--accent-color);
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.dev-panel-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.actions-right {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.dev-purge-btn {
+  background: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  padding: 0.5rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dev-purge-btn:hover {
+  background: rgba(244, 67, 54, 0.2);
+}
+
+/* ==========================================
+   ACCESSIBILITY & INCLUSIVITY STYLING SUITE
+   ========================================== */
+
+/* Screen Reader Only Utility */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Keyboard Focus Ring Customization */
+*:focus-visible {
+  outline: 3px solid var(--accent-color) !important;
+  outline-offset: 3px !important;
+  border-radius: 4px;
+}
+
+/* Skip to Content Navigation Button */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 1rem;
+  background: var(--accent-color);
+  color: var(--qa-user-text);
+  padding: 0.75rem 1.25rem;
+  z-index: 10000;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: top 0.2s ease;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* Dyslexia-Friendly Font Mode */
+body.dyslexic-font-mode,
+.dyslexic-font-mode * {
+  font-family: 'Atkinson Hyperlegible', sans-serif !important;
+  letter-spacing: 0.04em !important;
+}
+
+/* Font Size Scaling */
+html.font-large {
+  font-size: 115%;
+}
+
+html.font-xlarge {
+  font-size: 130%;
+}
+
+/* Increased Line Spacing */
+body.increased-spacing,
+.increased-spacing p,
+.increased-spacing li,
+.increased-spacing span {
+  line-height: 1.85 !important;
+  letter-spacing: 0.05em !important;
+  word-spacing: 0.1em !important;
+}
+
+/* High Contrast Mode */
+body.high-contrast-mode,
+.high-contrast-mode {
+  --bg-color: #000000 !important;
+  --card-bg: #000000 !important;
+  --card-border: #ffff00 !important;
+  --card-border-hover: #ffffff !important;
+  --text-primary: #ffff00 !important;
+  --text-secondary: #ffffff !important;
+  --text-muted: #ffff80 !important;
+  --accent-color: #ffff00 !important;
+  --accent-hover: #ffd700 !important;
+  --accent-light: #1a1a00 !important;
+  --nav-bg: #000000 !important;
+  --nav-border: #ffff00 !important;
+  --dropzone-bg: #050505 !important;
+  --dropzone-border: #ffff00 !important;
+  --input-bg: #0a0a0a !important;
+  --badge-bg: #333300 !important;
+  --badge-text: #ffff00 !important;
+  --point-card-bg: #000000 !important;
+  --point-header-bg: #111100 !important;
+  --qa-assistant-bg: #1a1a00 !important;
+  --qa-assistant-text: #ffffff !important;
+  --qa-user-bg: #ffff00 !important;
+  --qa-user-text: #000000 !important;
+  --grid-pattern-color: rgba(255, 255, 0, 0.15) !important;
+
+  --risk-low-bg: #002200 !important;
+  --risk-low-border: #00ff00 !important;
+  --risk-low-text: #00ff00 !important;
+
+  --risk-medium-bg: #331f00 !important;
+  --risk-medium-border: #ffaa00 !important;
+  --risk-medium-text: #ffaa00 !important;
+
+  --risk-high-bg: #330000 !important;
+  --risk-high-border: #ff3333 !important;
+  --risk-high-text: #ff3333 !important;
+}
+
+/* Reduced Motion Mode Overrides */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body.reduced-motion-mode *,
+body.reduced-motion-mode *::before,
+body.reduced-motion-mode *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Accessibility Control Panel Extras */
+.a11y-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-primary);
+}
+
+.a11y-section-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-color);
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px dashed var(--card-border);
+}
+
+.a11y-segmented-control {
+  display: flex;
+  gap: 4px;
+  background: var(--input-bg);
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid var(--card-border);
+}
+
+.a11y-segmented-control button {
+  flex: 1;
+  padding: 0.4rem 0.6rem;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.a11y-segmented-control button.active {
+  background: var(--card-bg);
+  color: var(--accent-color);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+}
+
+.a11y-select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.88rem;
+}
+
+.checkbox-field {
+  margin: 0.4rem 0;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-color);
+  cursor: pointer;
+}
+
+/* Audio Reader UI Component */
+.audio-reader-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.audio-reader-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  background: var(--accent-light);
+  color: var(--accent-color);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.audio-reader-btn:hover {
+  background: var(--card-bg);
+  border-color: var(--accent-color);
+  transform: translateY(-1px);
+}
+
+.audio-reader-btn.active {
+  background: var(--accent-color);
+  color: var(--qa-user-text);
+  border-color: var(--accent-color);
+}
+
+.audio-stop-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--card-border);
+  background: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.audio-stop-btn:hover {
+  background: rgba(244, 67, 54, 0.25);
+  transform: scale(1.05);
+}
+
+/* Nav A11y Settings Button */
+.a11y-settings-button-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  background: var(--card-bg);
+  font-family: inherit;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.a11y-settings-button-nav:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  background: var(--accent-light);
+}
+
+/* ========================================================
+   PROBLEM STATEMENT: AI FOR LEGAL ASSISTANCE SUITE STYLES
+   ======================================================== */
+
+/* Legal Disclaimer Banner */
+.legal-disclaimer-banner {
+  background: var(--badge-bg);
+  color: var(--text-muted);
+  border-top: 1px solid var(--card-border);
+  padding: 0.5rem 1.5rem;
+  font-size: 0.75rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.legal-disclaimer-banner strong {
+  color: var(--accent-color);
+}
+
+/* Document Comparison UI */
+.compare-container {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.compare-header h2 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.4rem;
+}
+
+.compare-header p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.compare-inputs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.compare-input-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.compare-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.doc-badge {
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.badge-a {
+  background: rgba(79, 70, 229, 0.15);
+  color: #4f46e5;
+}
+
+.badge-b {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.compare-file-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.compare-file-btn {
+  padding: 0.35rem 0.75rem;
+  border: 1px dashed var(--card-border);
+  border-radius: 6px;
+  background: var(--input-bg);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.compare-file-btn:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.compare-input-card textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.compare-action-bar {
+  display: flex;
+  justify-content: center;
+}
+
+.run-compare-btn {
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 24px;
+  background: var(--accent-color);
+  color: var(--qa-user-text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+
+.run-compare-btn:hover:not(:disabled) {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.run-compare-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.compare-results-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  animation: fadeInSlideUp 0.3s ease-out forwards;
+}
+
+.compare-summary-banner {
+  background: var(--point-header-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.compare-banner-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.compare-summary-text {
+  margin: 0 0 0.75rem 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.favorable-tag {
+  background: var(--accent-light);
+  border: 1px solid var(--card-border);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  color: var(--accent-color);
+}
+
+.differences-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.differences-list h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.difference-card {
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  background: var(--card-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.diff-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.diff-topic {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.diff-risk-badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.diff-risk-badge.increased_risk {
+  background: var(--risk-high-bg);
+  color: var(--risk-high-text);
+  border: 1px solid var(--risk-high-border);
+}
+
+.diff-risk-badge.decreased_risk {
+  background: var(--risk-low-bg);
+  color: var(--risk-low-text);
+  border: 1px solid var(--risk-low-border);
+}
+
+.diff-risk-badge.neutral {
+  background: var(--badge-bg);
+  color: var(--text-muted);
+}
+
+.diff-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  background: var(--point-header-bg);
+  padding: 0.85rem;
+  border-radius: 6px;
+}
+
+.diff-col p {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.diff-col-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.diff-impact {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  background: var(--accent-light);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+}
+
+/* Action Checklist UI */
+.checklist-container {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.checklist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.checklist-header h2 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.4rem;
+}
+
+.checklist-header p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.checklist-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.checklist-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.checklist-card-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.checklist-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.checklist-item {
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: var(--point-header-bg);
+  transition: all 0.2s ease;
+}
+
+.checklist-item.checked {
+  opacity: 0.5;
+  text-decoration: line-through;
+  background: var(--input-bg);
+}
+
+.checkbox-item-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  cursor: pointer;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.checkbox-item-label input[type="checkbox"] {
+  margin-top: 3px;
+  accent-color: var(--accent-color);
+  width: 17px;
+  height: 17px;
+}
+
+.timeframe-tag {
+  color: var(--accent-color);
+  font-style: normal;
+  font-weight: 600;
+}
+
+.source-tag {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.high-importance-badge {
+  background: var(--risk-high-bg);
+  color: var(--risk-high-text);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-right: 0.4rem;
+}
+
+/* Lawyer Prep Brief UI */
+.lawyer-prep-container {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.lawyer-prep-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.lawyer-prep-header h2 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.4rem;
+}
+
+.brief-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.brief-card h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.summary-brief p {
+  margin: 0;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.brief-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.brief-list {
+  padding-left: 1.25rem;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.brief-list li {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+
+

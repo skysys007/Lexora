@@ -5,8 +5,8 @@ import * as pdfjsLib from 'pdfjs-dist';
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
 /**
- * Perform OCR on an image file (PNG, JPG, WEBP, etc.)
- * @param {File|Blob|string} imageInput - File or DataURL of the image
+ * Perform OCR on an image file or HTML Canvas element.
+ * @param {File|Blob|HTMLCanvasElement|string} imageInput - Input source for OCR
  * @param {Function} [onProgress] - Optional progress callback
  * @returns {Promise<string>} Recognized text
  */
@@ -35,47 +35,67 @@ export async function extractTextFromImage(imageInput, onProgress) {
  * @returns {Promise<string>} Extracted text
  */
 export async function extractTextFromDocument(file, onProgress) {
-  if (file.type.startsWith('image/')) {
+  if (!file) {
+    throw new Error('No file provided for text extraction.');
+  }
+
+  if (file.type.startsWith('image/') || /\.(png|jpe?g|webp|bmp)$/i.test(file.name)) {
     return await extractTextFromImage(file, onProgress);
   }
 
-  if (file.type === 'application/pdf') {
+  if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    let fullText = '';
 
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const textContent = await page.getTextContent();
-      const pageText = textContent.items.map((item) => item.str).join(' ');
-      fullText += pageText + '\n';
-    }
+    try {
+      let fullText = '';
 
-    // If text extraction yielded minimal text, fallback to OCR on scanned PDF pages
-    if (fullText.trim().length < 50) {
-      console.log("PDF text is empty/minimal. Falling back to OCR Image Recognition on PDF pages...");
-      let ocrText = '';
       for (let i = 1; i <= pdf.numPages; i++) {
-        if (onProgress) {
-          onProgress(Math.round(((i - 1) / pdf.numPages) * 100));
-        }
         const page = await pdf.getPage(i);
-        const viewport = page.getViewport({ scale: 1.8 });
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-
-        await page.render({ canvasContext: context, viewport }).promise;
-        const pageImage = canvas.toDataURL('image/png');
-        const pageOcr = await extractTextFromImage(pageImage);
-        ocrText += `--- Page ${i} ---\n` + pageOcr + '\n';
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map((item) => item.str).join(' ');
+        fullText += pageText + '\n';
       }
-      return ocrText.trim();
-    }
 
-    return fullText.trim();
+      // If text extraction yielded minimal text, fallback to OCR on scanned PDF pages
+      if (fullText.trim().length < 50) {
+        console.log("PDF text is empty/minimal. Falling back to direct canvas OCR on PDF pages...");
+        let ocrText = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+          if (onProgress) {
+            onProgress(Math.round(((i - 1) / pdf.numPages) * 100));
+          }
+          const page = await pdf.getPage(i);
+          const viewport = page.getViewport({ scale: 1.8 });
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+
+          try {
+            await page.render({ canvasContext: context, viewport }).promise;
+            // Pass canvas directly to Tesseract to avoid memory-heavy base64 string creation
+            const pageOcr = await extractTextFromImage(canvas);
+            ocrText += `--- Page ${i} ---\n` + pageOcr + '\n';
+          } finally {
+            // Free canvas memory buffer immediately
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            canvas.width = 0;
+            canvas.height = 0;
+          }
+        }
+        return ocrText.trim();
+      }
+
+      return fullText.trim();
+    } finally {
+      if (pdf && typeof pdf.destroy === 'function') {
+        await pdf.destroy();
+      }
+    }
   }
 
   throw new Error('Unsupported file format. Please upload a PDF or Image file (PNG, JPG, WEBP).');
 }
+
+

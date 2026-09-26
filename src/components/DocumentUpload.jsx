@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
+import { validateUploadedFile, sanitizeTextInput } from '../utils/fileHelpers';
+import { UI_TRANSLATIONS } from '../constants/a11yConstants';
 
-export default function DocumentUpload({ onProcessDocument, onProcessText }) {
+export default function DocumentUpload({ onProcessDocument, onProcessText, a11yConfig = {} }) {
   const [inputMode, setInputMode] = useState('pdf');
   const [isProcessing, setIsProcessing] = useState(false);
   const [fileName, setFileName] = useState('');
@@ -8,13 +10,15 @@ export default function DocumentUpload({ onProcessDocument, onProcessText }) {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
 
+  const currentLang = a11yConfig.language || 'en';
+  const t = UI_TRANSLATIONS[currentLang] || UI_TRANSLATIONS.en;
+
   const processFile = async (file) => {
     if (!file) return;
-    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
-    const isImage = file.type.startsWith('image/') || /\.(png|jpe?g|webp|bmp)$/i.test(file.name);
 
-    if (!isPdf && !isImage) {
-      alert('Please upload a PDF or Image file (PNG, JPG, WEBP).');
+    const validation = validateUploadedFile(file);
+    if (!validation.valid) {
+      alert(validation.error);
       return;
     }
 
@@ -53,13 +57,21 @@ export default function DocumentUpload({ onProcessDocument, onProcessText }) {
     if (file) processFile(file);
   };
 
+  const handleKeyDownDropzone = (e) => {
+    if ((e.key === 'Enter' || e.key === ' ') && !isProcessing) {
+      e.preventDefault();
+      fileInputRef.current?.click();
+    }
+  };
+
   const handleTextSubmit = async () => {
-    if (!textInput.trim()) return;
+    const sanitized = sanitizeTextInput(textInput);
+    if (!sanitized) return;
 
     setIsProcessing(true);
 
     try {
-      await onProcessText(textInput);
+      await onProcessText(sanitized);
     } catch (error) {
       console.error("Error processing text:", error);
       alert("Failed to process text.");
@@ -69,9 +81,13 @@ export default function DocumentUpload({ onProcessDocument, onProcessText }) {
   };
 
   return (
-    <div className="upload-container">
-      <div className="upload-mode-tabs">
+    <div className="upload-container" role="region" aria-label="Document Upload Navigation Sidebar">
+      <div className="upload-mode-tabs" role="tablist" aria-label="Sidebar document mode select">
         <button
+          id="sidebar-tab-pdf"
+          role="tab"
+          aria-selected={inputMode === 'pdf'}
+          aria-controls="sidebar-panel-pdf"
           className={`upload-mode-tab ${inputMode === 'pdf' ? 'active' : ''}`}
           onClick={() => setInputMode('pdf')}
         >
@@ -82,6 +98,10 @@ export default function DocumentUpload({ onProcessDocument, onProcessText }) {
           PDF / Image
         </button>
         <button
+          id="sidebar-tab-text"
+          role="tab"
+          aria-selected={inputMode === 'text'}
+          aria-controls="sidebar-panel-text"
           className={`upload-mode-tab ${inputMode === 'text' ? 'active' : ''}`}
           onClick={() => setInputMode('text')}
         >
@@ -92,18 +112,24 @@ export default function DocumentUpload({ onProcessDocument, onProcessText }) {
             <line x1="16" y1="17" x2="8" y2="17"></line>
             <polyline points="10 9 9 9 8 9"></polyline>
           </svg>
-          Paste Text
+          {t.pasteTitle}
         </button>
       </div>
 
       <div key={inputMode} className="tab-panel-animated">
         {inputMode === 'pdf' ? (
           <div
+            id="sidebar-panel-pdf"
+            role="tabpanel"
+            aria-labelledby="sidebar-tab-pdf"
             className={`dropzone ${isDragging ? 'dragging' : ''} ${isProcessing ? 'processing' : ''} ${fileName ? 'has-file' : ''}`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             onClick={() => !isProcessing && fileInputRef.current?.click()}
+            onKeyDown={handleKeyDownDropzone}
+            tabIndex={0}
+            aria-label="Drag and drop PDF or Image document here or press Enter to pick file"
           >
             <input
               ref={fileInputRef}
@@ -115,7 +141,7 @@ export default function DocumentUpload({ onProcessDocument, onProcessText }) {
             />
 
             {isProcessing ? (
-              <div className="dropzone-content loading-buffer-box">
+              <div className="dropzone-content loading-buffer-box" role="status" aria-live="polite">
                 <div className="buffer-spinner-container">
                   <div className="buffer-spinner-ring"></div>
                 </div>
@@ -145,26 +171,27 @@ export default function DocumentUpload({ onProcessDocument, onProcessText }) {
                     <line x1="12" y1="3" x2="12" y2="15"></line>
                   </svg>
                 </div>
-                <p className="dropzone-text">Drag & drop PDF or Image document</p>
-                <p className="dropzone-hint">PDF, PNG, JPG, WEBP (Image Recognition OCR)</p>
+                <p className="dropzone-text">{t.dropzoneText}</p>
+                <p className="dropzone-hint">{t.dropzoneHint}</p>
               </div>
             )}
           </div>
         ) : (
-          <div className="text-input-box">
+          <div id="sidebar-panel-text" role="tabpanel" aria-labelledby="sidebar-tab-text" className="text-input-box">
             <textarea
               value={textInput}
               onChange={(e) => setTextInput(e.target.value)}
-              placeholder="Paste your legal document text here..."
+              placeholder={t.pastePlaceholder}
               disabled={isProcessing}
               rows={8}
+              aria-label="Legal document text content"
             />
             <button 
               className="text-submit-button"
               onClick={handleTextSubmit}
               disabled={isProcessing || !textInput.trim()}
             >
-              {isProcessing ? 'Analyzing...' : 'Analyze Text'}
+              {isProcessing ? 'Analyzing...' : t.analyzeText}
             </button>
           </div>
         )}

@@ -1,31 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export default function BookPageFlipOverlay({ isFlipping, direction = 'next', onMidpoint, onComplete, isDark }) {
-  const [phase, setPhase] = useState('idle'); // 'idle' | 'flipping'
+  const onMidpointRef = useRef(onMidpoint);
+  const onCompleteRef = useRef(onComplete);
 
   useEffect(() => {
-    if (isFlipping) {
-      setPhase('flipping');
+    onMidpointRef.current = onMidpoint;
+    onCompleteRef.current = onComplete;
+  });
 
-      // Midpoint: switch views when page is perpendicular (at 90 degrees)
-      const midTimer = setTimeout(() => {
-        if (onMidpoint) onMidpoint();
-      }, 400);
+  useEffect(() => {
+    if (!isFlipping) return;
 
-      // Complete animation
-      const endTimer = setTimeout(() => {
-        setPhase('idle');
-        if (onComplete) onComplete();
-      }, 800);
+    // Midpoint: switch views when page is perpendicular (at 90 degrees)
+    const midTimer = setTimeout(() => {
+      onMidpointRef.current?.();
+    }, 400);
 
-      return () => {
-        clearTimeout(midTimer);
-        clearTimeout(endTimer);
-      };
-    }
+    // Complete animation
+    const endTimer = setTimeout(() => {
+      onCompleteRef.current?.();
+    }, 800);
+
+    return () => {
+      clearTimeout(midTimer);
+      clearTimeout(endTimer);
+    };
   }, [isFlipping]);
 
-  if (phase === 'idle') return null;
+  if (!isFlipping) return null;
 
   return (
     <div className={`book-flip-stage ${isDark ? 'dark-mode' : ''}`}>
@@ -49,3 +52,4 @@ export default function BookPageFlipOverlay({ isFlipping, direction = 'next', on
     </div>
   );
 }
+

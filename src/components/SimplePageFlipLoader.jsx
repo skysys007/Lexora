@@ -1,11 +1,5 @@
 import { useState, useEffect } from 'react';
-
-const LOADING_STATUSES = [
-  'Reading document content...',
-  'Extracting key terms...',
-  'Analyzing clauses...',
-  'Preparing summary...'
-];
+import { LOADING_STATUSES } from '../constants/appConstants';
 
 export default function SimplePageFlipLoader({ message, statusMessage }) {
   const [statusIndex, setStatusIndex] = useState(0);

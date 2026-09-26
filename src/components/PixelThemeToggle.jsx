@@ -1,12 +1,12 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, memo } from 'react';
 
-export default function PixelThemeToggle({ isDark, onToggleTheme }) {
+const PixelThemeToggle = memo(function PixelThemeToggle({ isDark, onToggleTheme }) {
   const [animating, setAnimating] = useState(false);
   const [rippleStyle, setRippleStyle] = useState({});
   const [targetDark, setTargetDark] = useState(false);
   const buttonRef = useRef(null);
 
-  const triggerThemeTransition = (e) => {
+  const triggerThemeTransition = () => {
     if (animating) return;
 
     const nextDark = !isDark;
@@ -97,4 +97,7 @@ export default function PixelThemeToggle({ isDark, onToggleTheme }) {
       )}
     </>
   );
-}
+});
+
+export default PixelThemeToggle;
+

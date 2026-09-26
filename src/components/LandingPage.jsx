@@ -1,17 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
 import { SAMPLE_NDA, SAMPLE_LEASE } from '../utils/sampleDocuments';
+import { TYPEWRITER_PHRASES } from '../constants/appConstants';
+import { validateUploadedFile, sanitizeTextInput } from '../utils/fileHelpers';
+import { UI_TRANSLATIONS } from '../constants/a11yConstants';
 
-const TYPEWRITER_PHRASES = [
-  "In plain English.",
-  "Before you sign.",
-  "Without legal jargon."
-];
-
-export default function LandingPage({ onProcessDocument, onProcessText, isAnalyzing }) {
+export default function LandingPage({ onProcessDocument, onProcessText, isAnalyzing, a11yConfig = {} }) {
   const [inputMode, setInputMode] = useState('pdf');
   const [textInput, setTextInput] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
+
+  const currentLang = a11yConfig.language || 'en';
+  const t = UI_TRANSLATIONS[currentLang] || UI_TRANSLATIONS.en;
 
   // Typewriter effect state
   const [phraseIndex, setPhraseIndex] = useState(0);
@@ -19,6 +19,11 @@ export default function LandingPage({ onProcessDocument, onProcessText, isAnalyz
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
+    if (a11yConfig.reducedMotion) {
+      setDisplayText(TYPEWRITER_PHRASES[0]);
+      return;
+    }
+
     const currentPhrase = TYPEWRITER_PHRASES[phraseIndex];
     let timer;
 
@@ -38,21 +43,22 @@ export default function LandingPage({ onProcessDocument, onProcessText, isAnalyz
           setDisplayText(currentPhrase.substring(0, displayText.length - 1));
         }, 35);
       } else {
-        setIsDeleting(false);
-        setPhraseIndex((prev) => (prev + 1) % TYPEWRITER_PHRASES.length);
+        timer = setTimeout(() => {
+          setIsDeleting(false);
+          setPhraseIndex((prev) => (prev + 1) % TYPEWRITER_PHRASES.length);
+        }, 200);
       }
     }
 
     return () => clearTimeout(timer);
-  }, [displayText, isDeleting, phraseIndex]);
+  }, [displayText, isDeleting, phraseIndex, a11yConfig.reducedMotion]);
 
   const processFile = (file) => {
     if (!file) return;
-    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
-    const isImage = file.type.startsWith('image/') || /\.(png|jpe?g|webp|bmp)$/i.test(file.name);
 
-    if (!isPdf && !isImage) {
-      alert('Please upload a PDF or Image file (PNG, JPG, WEBP).');
+    const validation = validateUploadedFile(file);
+    if (!validation.valid) {
+      alert(validation.error);
       return;
     }
     onProcessDocument(file);
@@ -80,9 +86,17 @@ export default function LandingPage({ onProcessDocument, onProcessText, isAnalyz
     if (file) processFile(file);
   };
 
+  const handleKeyDownDropzone = (e) => {
+    if ((e.key === 'Enter' || e.key === ' ') && !isAnalyzing) {
+      e.preventDefault();
+      fileInputRef.current?.click();
+    }
+  };
+
   const handleTextSubmit = () => {
-    if (!textInput.trim()) return;
-    onProcessText(textInput);
+    const sanitized = sanitizeTextInput(textInput);
+    if (!sanitized) return;
+    onProcessText(sanitized);
   };
 
   return (
@@ -97,7 +111,7 @@ export default function LandingPage({ onProcessDocument, onProcessText, isAnalyz
           Understand what you're signing. <br />
           <span className="hero-highlight">
             {displayText}
-            <span className="typewriter-cursor">|</span>
+            {!a11yConfig.reducedMotion && <span className="typewriter-cursor">|</span>}
           </span>
         </h1>
         
@@ -107,8 +121,12 @@ export default function LandingPage({ onProcessDocument, onProcessText, isAnalyz
 
         {/* Hero Quick Upload Box */}
         <div className="hero-upload-card">
-          <div className="upload-mode-tabs">
+          <div className="upload-mode-tabs" role="tablist" aria-label="Document input options">
             <button
+              id="tab-pdf"
+              role="tab"
+              aria-selected={inputMode === 'pdf'}
+              aria-controls="panel-pdf"
               className={`upload-mode-tab ${inputMode === 'pdf' ? 'active' : ''}`}
               onClick={() => setInputMode('pdf')}
             >
@@ -116,9 +134,13 @@ export default function LandingPage({ onProcessDocument, onProcessText, isAnalyz
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
               </svg>
-              Upload Document / Image
+              {t.uploadTitle}
             </button>
             <button
+              id="tab-text"
+              role="tab"
+              aria-selected={inputMode === 'text'}
+              aria-controls="panel-text"
               className={`upload-mode-tab ${inputMode === 'text' ? 'active' : ''}`}
               onClick={() => setInputMode('text')}
             >
@@ -127,18 +149,24 @@ export default function LandingPage({ onProcessDocument, onProcessText, isAnalyz
                 <line x1="16" y1="13" x2="8" y2="13"></line>
                 <line x1="16" y1="17" x2="8" y2="17"></line>
               </svg>
-              Paste Text
+              {t.pasteTitle}
             </button>
           </div>
 
           <div key={inputMode} className="tab-panel-animated">
             {inputMode === 'pdf' ? (
               <div
+                id="panel-pdf"
+                role="tabpanel"
+                aria-labelledby="tab-pdf"
                 className={`hero-dropzone ${isDragging ? 'dragging' : ''} ${isAnalyzing ? 'processing' : ''}`}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 onClick={() => !isAnalyzing && fileInputRef.current?.click()}
+                onKeyDown={handleKeyDownDropzone}
+                tabIndex={0}
+                aria-label={t.dropzoneText}
               >
                 <input
                   ref={fileInputRef}
@@ -155,24 +183,25 @@ export default function LandingPage({ onProcessDocument, onProcessText, isAnalyz
                     <line x1="12" y1="3" x2="12" y2="15"></line>
                   </svg>
                 </div>
-                <p className="dropzone-text">Drop PDF or Image document here to analyze</p>
-                <p className="dropzone-hint">Supports PDF, PNG, JPG, WEBP (Image Recognition OCR)</p>
+                <p className="dropzone-text">{t.dropzoneText}</p>
+                <p className="dropzone-hint">{t.dropzoneHint}</p>
               </div>
             ) : (
-              <div className="hero-text-box">
+              <div id="panel-text" role="tabpanel" aria-labelledby="tab-text" className="hero-text-box">
                 <textarea
                   value={textInput}
                   onChange={(e) => setTextInput(e.target.value)}
-                  placeholder="Paste contract or agreement text here..."
+                  placeholder={t.pastePlaceholder}
                   rows={4}
                   disabled={isAnalyzing}
+                  aria-label="Legal document text input"
                 />
                 <button
                   className="hero-submit-btn"
                   onClick={handleTextSubmit}
                   disabled={isAnalyzing || !textInput.trim()}
                 >
-                  Analyze Document Text
+                  {t.analyzeText}
                 </button>
               </div>
             )}
@@ -181,17 +210,17 @@ export default function LandingPage({ onProcessDocument, onProcessText, isAnalyz
           <div className="sample-docs">
             <span className="sample-label">Or try sample:</span>
             <button className="sample-btn" onClick={() => onProcessText(SAMPLE_NDA)} disabled={isAnalyzing}>
-              Sample NDA
+              {t.sampleNDA}
             </button>
             <button className="sample-btn" onClick={() => onProcessText(SAMPLE_LEASE)} disabled={isAnalyzing}>
-              Sample Lease
+              {t.sampleLease}
             </button>
           </div>
         </div>
       </section>
 
       {/* Feature Highlights Grid */}
-      <section className="features-section">
+      <section className="features-section" aria-label="Key Features">
         <div className="feature-card">
           <div className="feature-icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">

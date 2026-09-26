@@ -2,13 +2,26 @@ import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { askQuestion } from '../services/aiService';
+import AudioReader from './AudioReader';
+import { announceToScreenReader } from '../utils/a11yHelpers';
 
-export default function DocumentQA({ documentText, apiKey }) {
+const sanitizeUrl = (url) => {
+  if (!url || typeof url !== 'string') return '';
+  const clean = url.trim().toLowerCase();
+  if (clean.startsWith('javascript:') || clean.startsWith('data:') || clean.startsWith('vbscript:')) {
+    return '#';
+  }
+  return url;
+};
+
+export default function DocumentQA({ documentText, apiConfig, apiKey, a11yConfig = {} }) {
   const [conversation, setConversation] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+
+  const currentLang = a11yConfig.language || 'en';
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -25,6 +38,7 @@ export default function DocumentQA({ documentText, apiKey }) {
     setConversation(prev => [...prev, userMessage]);
     setInputValue('');
     setIsLoading(true);
+    announceToScreenReader("Sending question to AI...", "polite");
 
     try {
       const conversationHistory = conversation.map(msg => ({
@@ -32,12 +46,15 @@ export default function DocumentQA({ documentText, apiKey }) {
         content: msg.content
       }));
 
-      const answer = await askQuestion(documentText, conversationHistory, question, apiKey);
+      const activeConfig = apiConfig || apiKey;
+      const answer = await askQuestion(documentText, conversationHistory, question, activeConfig, a11yConfig);
       const aiMessage = { role: 'assistant', content: answer };
       setConversation(prev => [...prev, aiMessage]);
+      announceToScreenReader("AI answer received.", "assertive");
     } catch (error) {
       const errorMessage = { role: 'assistant', content: `Error: ${error.message}` };
       setConversation(prev => [...prev, errorMessage]);
+      announceToScreenReader(`Error getting answer: ${error.message}`, "assertive");
     } finally {
       setIsLoading(false);
       inputRef.current?.focus();
@@ -59,24 +76,24 @@ export default function DocumentQA({ documentText, apiKey }) {
   };
 
   return (
-    <div className="qa-container">
+    <div className="qa-container" role="region" aria-label="Document Question and Answer Session">
       <div className="qa-header">
         <h2>Document Q&A</h2>
         <p>Ask questions about the uploaded legal document</p>
       </div>
 
-      <div className="qa-messages">
+      <div className="qa-messages" role="log" aria-live="polite" aria-label="Chat messages">
         {conversation.length === 0 && (
           <div className="qa-empty">
             <p>Start by asking a question about your document.</p>
-            <div className="qa-suggestions">
-              <button onClick={() => setInputValue('What are the main obligations in this document?')}>
+            <div className="qa-suggestions" role="group" aria-label="Sample questions">
+              <button type="button" onClick={() => setInputValue('What are the main obligations in this document?')}>
                 What are the main obligations?
               </button>
-              <button onClick={() => setInputValue('What is the termination clause?')}>
+              <button type="button" onClick={() => setInputValue('What is the termination clause?')}>
                 What is the termination clause?
               </button>
-              <button onClick={() => setInputValue('Are there any penalties mentioned?')}>
+              <button type="button" onClick={() => setInputValue('Are there any penalties mentioned?')}>
                 Are there any penalties?
               </button>
             </div>
@@ -87,8 +104,19 @@ export default function DocumentQA({ documentText, apiKey }) {
           <div key={index} className={`qa-message ${msg.role}`}>
             <div className="qa-message-content">
               {msg.role === 'assistant' ? (
-                <div className="markdown-body">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.4rem' }}>
+                    <AudioReader
+                      text={msg.content}
+                      label="AI Response"
+                      compact={true}
+                      lang={currentLang}
+                      rate={a11yConfig.ttsSpeed || 1.0}
+                    />
+                  </div>
+                  <div className="markdown-body">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} urlTransform={sanitizeUrl}>{msg.content}</ReactMarkdown>
+                  </div>
                 </div>
               ) : (
                 <p>{msg.content}</p>
@@ -98,13 +126,14 @@ export default function DocumentQA({ documentText, apiKey }) {
         ))}
 
         {isLoading && (
-          <div className="qa-message assistant loading">
+          <div className="qa-message assistant loading" role="status" aria-label="AI is generating answer">
             <div className="qa-message-content">
-              <div className="qa-typing">
+              <div className="qa-typing" aria-hidden="true">
                 <span></span>
                 <span></span>
                 <span></span>
               </div>
+              <span className="sr-only">AI is generating answer...</span>
             </div>
           </div>
         )}
@@ -121,8 +150,9 @@ export default function DocumentQA({ documentText, apiKey }) {
           onKeyDown={handleKeyDown}
           placeholder="Ask a question about the document..."
           disabled={isLoading}
+          aria-label="Question text input"
         />
-        <button type="submit" disabled={isLoading || !inputValue.trim()}>
+        <button type="submit" disabled={isLoading || !inputValue.trim()} aria-label="Submit question">
           {isLoading ? 'Asking...' : 'Ask'}
         </button>
       </form>
