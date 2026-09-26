@@ -1,6 +1,22 @@
 import { useEffect, useRef } from 'react';
 
-export default function BookPageFlipOverlay({ isFlipping, direction = 'next', onMidpoint, onComplete, isDark }) {
+/**
+ * 3D Page flip animation overlay component for page turning transitions.
+ *
+ * @param {Object} props
+ * @param {boolean} [props.isFlipping=false] - Whether flip transition is active
+ * @param {string} [props.direction='next'] - Flip direction ('next' | 'prev')
+ * @param {Function} [props.onMidpoint] - Callback at 90-degree turning midpoint
+ * @param {Function} [props.onComplete] - Callback when flip animation completes
+ * @param {boolean} [props.isDark=false] - Dark theme flag
+ */
+export default function BookPageFlipOverlay({
+  isFlipping = false,
+  direction = 'next',
+  onMidpoint = () => {},
+  onComplete = () => {},
+  isDark = false
+}) {
   const onMidpointRef = useRef(onMidpoint);
   const onCompleteRef = useRef(onComplete);
 
@@ -52,4 +68,5 @@ export default function BookPageFlipOverlay({ isFlipping, direction = 'next', on
     </div>
   );
 }
+
 

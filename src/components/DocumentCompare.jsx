@@ -1,11 +1,17 @@
 import { useState, useRef } from 'react';
 import { compareLegalDocuments } from '../services/aiService';
-import { validateUploadedFile, sanitizeTextInput } from '../utils/fileHelpers';
+import { validateUploadedFile } from '../utils/fileHelpers';
 import { extractTextFromDocument } from '../services/ocrService';
-
 import { DEFAULT_API_CONFIG } from '../constants/appConstants';
 
-export default function DocumentCompare({ apiConfig, a11yConfig = {} }) {
+/**
+ * Component for side-by-side legal document comparison (Document A vs Document B).
+ *
+ * @param {Object} props
+ * @param {Object} [props.apiConfig] - API settings configuration
+ * @param {Object} [props.a11yConfig={}] - Accessibility settings configuration
+ */
+export default function DocumentCompare({ apiConfig = DEFAULT_API_CONFIG, a11yConfig = {} }) {
   const [docA, setDocA] = useState('');
   const [docB, setDocB] = useState('');
   const [nameA, setNameA] = useState('Document A');
@@ -212,3 +218,4 @@ export default function DocumentCompare({ apiConfig, a11yConfig = {} }) {
     </div>
   );
 }
+

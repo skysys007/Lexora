@@ -1,6 +1,13 @@
 import { useState, useRef, memo } from 'react';
 
-const PixelThemeToggle = memo(function PixelThemeToggle({ isDark, onToggleTheme }) {
+/**
+ * Pixel Theme Toggle Button featuring smooth View Transitions API or radial expansion ripple.
+ *
+ * @param {Object} props
+ * @param {boolean} [props.isDark=false] - Whether active theme is dark mode
+ * @param {Function} [props.onToggleTheme=() => {}] - Callback with next boolean dark mode state
+ */
+const PixelThemeToggle = memo(function PixelThemeToggle({ isDark = false, onToggleTheme = () => {} }) {
   const [animating, setAnimating] = useState(false);
   const [rippleStyle, setRippleStyle] = useState({});
   const [targetDark, setTargetDark] = useState(false);
@@ -100,4 +107,5 @@ const PixelThemeToggle = memo(function PixelThemeToggle({ isDark, onToggleTheme 
 });
 
 export default PixelThemeToggle;
+
 

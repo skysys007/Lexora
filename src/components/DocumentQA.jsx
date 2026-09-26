@@ -3,35 +3,23 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { askQuestion } from '../services/aiService';
 import { announceToScreenReader } from '../utils/a11yHelpers';
+import { sanitizeUrl } from '../utils/urlHelpers';
 
-const sanitizeUrl = (url) => {
-  if (!url || typeof url !== 'string') return '#';
-  const clean = url.trim().toLowerCase();
-  if (
-    clean.startsWith('javascript:') ||
-    clean.startsWith('data:') ||
-    clean.startsWith('vbscript:') ||
-    clean.startsWith('file:') ||
-    clean.startsWith('blob:') ||
-    clean.startsWith('about:') ||
-    clean.startsWith('chrome:')
-  ) {
-    return '#';
-  }
-  if (!clean.startsWith('http://') && !clean.startsWith('https://') && !clean.startsWith('mailto:') && !clean.startsWith('#') && !clean.startsWith('/')) {
-    return '#';
-  }
-  return url;
-};
-
-export default function DocumentQA({ documentText, apiConfig, apiKey, a11yConfig = {} }) {
+/**
+ * Component for interactive legal document Question & Answer chat session.
+ *
+ * @param {Object} props
+ * @param {string} [props.documentText=""] - Text content of the active legal document
+ * @param {Object} [props.apiConfig] - API settings configuration
+ * @param {string} [props.apiKey] - Fallback direct API key string
+ * @param {Object} [props.a11yConfig={}] - Accessibility configuration
+ */
+export default function DocumentQA({ documentText = "", apiConfig = null, apiKey = "", a11yConfig = {} }) {
   const [conversation, setConversation] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
-
-  const currentLang = a11yConfig.language || 'en';
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -158,3 +146,4 @@ export default function DocumentQA({ documentText, apiConfig, apiKey, a11yConfig
     </div>
   );
 }
+

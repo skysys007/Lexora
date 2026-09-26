@@ -1,10 +1,19 @@
 import { useEffect, useRef } from 'react';
 import { trapFocus } from '../utils/a11yHelpers';
-import { SUPPORTED_LANGUAGES, UI_TRANSLATIONS } from '../constants/a11yConstants';
+import { SUPPORTED_LANGUAGES, UI_TRANSLATIONS, DEFAULT_A11Y_CONFIG } from '../constants/a11yConstants';
 
-export default function AccessibilityModal({ config, onChange, onClose }) {
+/**
+ * Modal dialog component for user accessibility preferences (font size, dyslexic font, contrast, language).
+ *
+ * @param {Object} props
+ * @param {Object} [props.config=DEFAULT_A11Y_CONFIG] - Current active accessibility configuration
+ * @param {Function} [props.onChange=() => {}] - Callback when accessibility setting changes
+ * @param {Function} [props.onClose=() => {}] - Callback to close modal
+ */
+export default function AccessibilityModal({ config = DEFAULT_A11Y_CONFIG, onChange = () => {}, onClose = () => {} }) {
   const modalRef = useRef(null);
-  const currentLang = config.language || 'en';
+  const safeConfig = config || DEFAULT_A11Y_CONFIG;
+  const currentLang = safeConfig.language || 'en';
   const t = UI_TRANSLATIONS[currentLang] || UI_TRANSLATIONS.en;
 
   useEffect(() => {
@@ -24,7 +33,7 @@ export default function AccessibilityModal({ config, onChange, onClose }) {
 
   const updateSetting = (key, value) => {
     onChange({
-      ...config,
+      ...safeConfig,
       [key]: value,
     });
   };
@@ -63,21 +72,21 @@ export default function AccessibilityModal({ config, onChange, onClose }) {
               <div className="a11y-segmented-control" id="a11y-font-size">
                 <button
                   type="button"
-                  className={config.fontSize === 'normal' ? 'active' : ''}
+                  className={safeConfig.fontSize === 'normal' ? 'active' : ''}
                   onClick={() => updateSetting('fontSize', 'normal')}
                 >
                   Normal (100%)
                 </button>
                 <button
                   type="button"
-                  className={config.fontSize === 'large' ? 'active' : ''}
+                  className={safeConfig.fontSize === 'large' ? 'active' : ''}
                   onClick={() => updateSetting('fontSize', 'large')}
                 >
                   Large (115%)
                 </button>
                 <button
                   type="button"
-                  className={config.fontSize === 'xlarge' ? 'active' : ''}
+                  className={safeConfig.fontSize === 'xlarge' ? 'active' : ''}
                   onClick={() => updateSetting('fontSize', 'xlarge')}
                 >
                   XL (130%)
@@ -90,7 +99,7 @@ export default function AccessibilityModal({ config, onChange, onClose }) {
                 <input
                   id="a11y-dyslexic-toggle"
                   type="checkbox"
-                  checked={!!config.dyslexicFont}
+                  checked={!!safeConfig.dyslexicFont}
                   onChange={(e) => updateSetting('dyslexicFont', e.target.checked)}
                 />
                 <span>{t.dyslexicFont}</span>
@@ -102,7 +111,7 @@ export default function AccessibilityModal({ config, onChange, onClose }) {
                 <input
                   id="a11y-line-spacing-toggle"
                   type="checkbox"
-                  checked={config.lineSpacing === 'increased'}
+                  checked={safeConfig.lineSpacing === 'increased'}
                   onChange={(e) => updateSetting('lineSpacing', e.target.checked ? 'increased' : 'normal')}
                 />
                 <span>{t.lineSpacing}</span>
@@ -114,7 +123,7 @@ export default function AccessibilityModal({ config, onChange, onClose }) {
                 <input
                   id="a11y-high-contrast-toggle"
                   type="checkbox"
-                  checked={!!config.highContrast}
+                  checked={!!safeConfig.highContrast}
                   onChange={(e) => updateSetting('highContrast', e.target.checked)}
                 />
                 <span>{t.highContrast}</span>
@@ -126,7 +135,7 @@ export default function AccessibilityModal({ config, onChange, onClose }) {
                 <input
                   id="a11y-reduced-motion-toggle"
                   type="checkbox"
-                  checked={!!config.reducedMotion}
+                  checked={!!safeConfig.reducedMotion}
                   onChange={(e) => updateSetting('reducedMotion', e.target.checked)}
                 />
                 <span>{t.reducedMotion}</span>
@@ -141,7 +150,7 @@ export default function AccessibilityModal({ config, onChange, onClose }) {
                 <input
                   id="a11y-simplified-lang-toggle"
                   type="checkbox"
-                  checked={!!config.simplifiedLanguage}
+                  checked={!!safeConfig.simplifiedLanguage}
                   onChange={(e) => updateSetting('simplifiedLanguage', e.target.checked)}
                 />
                 <span>{t.simplifiedLang}</span>
@@ -152,7 +161,7 @@ export default function AccessibilityModal({ config, onChange, onClose }) {
               <label htmlFor="a11y-language-select">{t.uiLanguage}</label>
               <select
                 id="a11y-language-select"
-                value={config.language || 'en'}
+                value={safeConfig.language || 'en'}
                 onChange={(e) => updateSetting('language', e.target.value)}
                 className="a11y-select"
               >
@@ -177,3 +186,4 @@ export default function AccessibilityModal({ config, onChange, onClose }) {
     </div>
   );
 }
+

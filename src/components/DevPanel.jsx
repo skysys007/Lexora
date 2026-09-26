@@ -1,8 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
 import { trapFocus } from '../utils/a11yHelpers';
+import { DEFAULT_API_CONFIG } from '../constants/appConstants';
 
-export default function DevPanel({ config, onConfigChange, onClose }) {
-  const [tempConfig, setTempConfig] = useState({ ...config });
+/**
+ * Developer Settings Modal for overriding API keys, custom endpoints, and target models.
+ *
+ * @param {Object} props
+ * @param {Object} [props.config=DEFAULT_API_CONFIG] - Active API configuration
+ * @param {Function} [props.onConfigChange=() => {}] - Callback when configuration is updated
+ * @param {Function} [props.onClose=() => {}] - Callback to close modal
+ */
+export default function DevPanel({ config = DEFAULT_API_CONFIG, onConfigChange = () => {}, onClose = () => {} }) {
+  const [tempConfig, setTempConfig] = useState({ ...(config || DEFAULT_API_CONFIG) });
   const [showApiKey, setShowApiKey] = useState(false);
   const modalRef = useRef(null);
 
@@ -133,3 +142,4 @@ export default function DevPanel({ config, onConfigChange, onClose }) {
     </div>
   );
 }
+

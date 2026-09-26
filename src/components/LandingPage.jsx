@@ -4,7 +4,21 @@ import { TYPEWRITER_PHRASES } from '../constants/appConstants';
 import { validateUploadedFile, sanitizeTextInput } from '../utils/fileHelpers';
 import { UI_TRANSLATIONS } from '../constants/a11yConstants';
 
-export default function LandingPage({ onProcessDocument, onProcessText, isAnalyzing, a11yConfig = {} }) {
+/**
+ * Component for Lexora's main landing page and hero document uploader.
+ *
+ * @param {Object} props
+ * @param {Function} [props.onProcessDocument] - Callback for document file upload
+ * @param {Function} [props.onProcessText] - Callback for text submit
+ * @param {boolean} [props.isAnalyzing=false] - Analysis running state
+ * @param {Object} [props.a11yConfig={}] - Accessibility settings
+ */
+export default function LandingPage({
+  onProcessDocument = () => {},
+  onProcessText = () => {},
+  isAnalyzing = false,
+  a11yConfig = {}
+}) {
   const [inputMode, setInputMode] = useState('pdf');
   const [textInput, setTextInput] = useState('');
   const [isDragging, setIsDragging] = useState(false);
@@ -65,7 +79,7 @@ export default function LandingPage({ onProcessDocument, onProcessText, isAnalyz
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (file) processFile(file);
   };
 
@@ -82,7 +96,7 @@ export default function LandingPage({ onProcessDocument, onProcessText, isAnalyz
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    const file = e.dataTransfer.files[0];
+    const file = e.dataTransfer.files?.[0];
     if (file) processFile(file);
   };
 
@@ -255,3 +269,4 @@ export default function LandingPage({ onProcessDocument, onProcessText, isAnalyz
     </div>
   );
 }
+

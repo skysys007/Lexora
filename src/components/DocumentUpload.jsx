@@ -2,7 +2,15 @@ import { useState, useRef } from 'react';
 import { validateUploadedFile, sanitizeTextInput } from '../utils/fileHelpers';
 import { UI_TRANSLATIONS } from '../constants/a11yConstants';
 
-export default function DocumentUpload({ onProcessDocument, onProcessText, a11yConfig = {} }) {
+/**
+ * Component for handling document file uploads (PDF / Image) or direct text pasting.
+ *
+ * @param {Object} props
+ * @param {Function} [props.onProcessDocument] - Async callback invoked with file object when file uploaded
+ * @param {Function} [props.onProcessText] - Async callback invoked with text string when pasted text submitted
+ * @param {Object} [props.a11yConfig={}] - Accessibility settings configuration object
+ */
+export default function DocumentUpload({ onProcessDocument = () => {}, onProcessText = () => {}, a11yConfig = {} }) {
   const [inputMode, setInputMode] = useState('pdf');
   const [isProcessing, setIsProcessing] = useState(false);
   const [fileName, setFileName] = useState('');
@@ -36,7 +44,7 @@ export default function DocumentUpload({ onProcessDocument, onProcessText, a11yC
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (file) processFile(file);
   };
 
@@ -53,7 +61,7 @@ export default function DocumentUpload({ onProcessDocument, onProcessText, a11yC
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    const file = e.dataTransfer.files[0];
+    const file = e.dataTransfer.files?.[0];
     if (file) processFile(file);
   };
 
@@ -199,3 +207,4 @@ export default function DocumentUpload({ onProcessDocument, onProcessText, a11yC
     </div>
   );
 }
+

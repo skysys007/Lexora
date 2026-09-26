@@ -6,28 +6,17 @@ import PointCard from './PointCard';
 import { RISK_COLOR_PALETTE } from '../constants/appConstants';
 import { announceToScreenReader } from '../utils/a11yHelpers';
 import { UI_TRANSLATIONS } from '../constants/a11yConstants';
+import { sanitizeUrl } from '../utils/urlHelpers';
 
-const sanitizeUrl = (url) => {
-  if (!url || typeof url !== 'string') return '#';
-  const clean = url.trim().toLowerCase();
-  if (
-    clean.startsWith('javascript:') ||
-    clean.startsWith('data:') ||
-    clean.startsWith('vbscript:') ||
-    clean.startsWith('file:') ||
-    clean.startsWith('blob:') ||
-    clean.startsWith('about:') ||
-    clean.startsWith('chrome:')
-  ) {
-    return '#';
-  }
-  if (!clean.startsWith('http://') && !clean.startsWith('https://') && !clean.startsWith('mailto:') && !clean.startsWith('#') && !clean.startsWith('/')) {
-    return '#';
-  }
-  return url;
-};
-
-export default function AnalysisResults({ results, isLoading, a11yConfig = {} }) {
+/**
+ * Component to present AI document analysis results, risk level assessment, and export functionality.
+ *
+ * @param {Object} props
+ * @param {string|Object} [props.results] - Raw JSON string or object containing document analysis
+ * @param {boolean} [props.isLoading=false] - Analysis loading state flag
+ * @param {Object} [props.a11yConfig={}] - Accessibility settings configuration
+ */
+export default function AnalysisResults({ results = null, isLoading = false, a11yConfig = {} }) {
   const currentLang = a11yConfig.language || 'en';
   const t = UI_TRANSLATIONS[currentLang] || UI_TRANSLATIONS.en;
 
@@ -66,21 +55,14 @@ export default function AnalysisResults({ results, isLoading, a11yConfig = {} })
     } catch {
       // Not valid JSON, fallback to markdown rendering
     }
+  } else if (results && typeof results === 'object') {
+    parsedResults = results;
   }
 
   if (parsedResults && parsedResults.critical_points) {
     const { document_type, one_line_summary, critical_points, risk_level, risk_reason } = parsedResults;
     const risk = RISK_COLOR_PALETTE[risk_level] || RISK_COLOR_PALETTE.medium;
-
     const riskLabelText = risk_level === 'high' ? t.highRisk : risk_level === 'medium' ? t.mediumRisk : t.lowRisk;
-
-    const fullAnalysisSpeech = `
-      ${document_type || "Document Analysis"}.
-      ${one_line_summary ? "Summary: " + one_line_summary : ""}.
-      ${risk_level ? "Overall Risk Level: " + riskLabelText : ""}.
-      ${risk_reason ? "Risk Reason: " + risk_reason : ""}.
-      Number of critical points: ${critical_points ? critical_points.length : 0}.
-    `;
 
     const handleExport = () => {
       let exportText = `# ${document_type || "Document Analysis"}\n\n`;
@@ -89,10 +71,10 @@ export default function AnalysisResults({ results, isLoading, a11yConfig = {} })
       if (risk_reason) exportText += `Risk Reason: ${risk_reason}\n\n`;
       exportText += `## Critical Points\n\n`;
       (critical_points || []).forEach((pt, i) => {
-        exportText += `### ${i + 1}. ${pt.title} [${pt.severity?.toUpperCase() || 'INFO'}]\n`;
+        exportText += `### ${i + 1}. ${pt.title || 'Clause'} [${(pt.severity || 'INFO').toUpperCase()}]\n`;
         if (pt.what_it_means) exportText += `- What it means: ${pt.what_it_means}\n`;
         if (pt.why_you_care) exportText += `- Why you care: ${pt.why_you_care}\n`;
-        if (pt.your_options && pt.your_options.length) {
+        if (pt.your_options && Array.isArray(pt.your_options) && pt.your_options.length) {
           exportText += `- Options:\n` + pt.your_options.map(o => `  * ${o}`).join('\n') + '\n';
         }
         if (pt.source_location) exportText += `- Location: ${pt.source_location}\n`;
@@ -163,8 +145,11 @@ export default function AnalysisResults({ results, isLoading, a11yConfig = {} })
         <h2>Document Analysis</h2>
       </div>
       <div className="results-content markdown-body">
-        <ReactMarkdown skipHtml={true} remarkPlugins={[remarkGfm]} urlTransform={sanitizeUrl}>{results}</ReactMarkdown>
+        <ReactMarkdown skipHtml={true} remarkPlugins={[remarkGfm]} urlTransform={sanitizeUrl}>
+          {typeof results === 'string' ? results : JSON.stringify(results, null, 2)}
+        </ReactMarkdown>
       </div>
     </div>
   );
 }
+
