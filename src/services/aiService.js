@@ -27,9 +27,8 @@ function validateEndpointUrl(endpoint) {
  */
 async function callLLM(promptMessages, config = DEFAULT_API_CONFIG, temperature = 0.1) {
   const activeConfig = { ...DEFAULT_API_CONFIG, ...config };
-  const effectiveKey = (config && typeof config.apiKey === 'string')
-    ? config.apiKey.trim()
-    : (activeConfig.apiKey || '').trim();
+  const customKey = (config && typeof config.apiKey === 'string') ? config.apiKey.trim() : '';
+  const effectiveKey = customKey || (DEFAULT_API_CONFIG.apiKey || '').trim();
   let modelToUse = activeConfig.model;
   if (!modelToUse || typeof modelToUse !== 'string' || modelToUse.includes('llama-3.3-70b-versatile') || modelToUse.includes('llama3-70b-8192')) {
     modelToUse = DEFAULT_API_CONFIG.model;

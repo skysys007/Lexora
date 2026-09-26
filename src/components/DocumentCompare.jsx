@@ -4,6 +4,8 @@ import { validateUploadedFile, sanitizeTextInput } from '../utils/fileHelpers';
 import { extractTextFromDocument } from '../services/ocrService';
 import AudioReader from './AudioReader';
 
+import { DEFAULT_API_CONFIG } from '../constants/appConstants';
+
 export default function DocumentCompare({ apiConfig, a11yConfig = {} }) {
   const [docA, setDocA] = useState('');
   const [docB, setDocB] = useState('');
@@ -37,7 +39,8 @@ export default function DocumentCompare({ apiConfig, a11yConfig = {} }) {
       return;
     }
 
-    if (!apiConfig || !apiConfig.apiKey) {
+    const effectiveKey = (apiConfig?.apiKey && apiConfig.apiKey.trim()) || DEFAULT_API_CONFIG.apiKey;
+    if (!effectiveKey) {
       alert("Please configure your API key in Dev Settings first.");
       return;
     }
