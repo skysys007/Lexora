@@ -167,25 +167,6 @@ export default function LandingPage({
               </svg>
               {t.pasteTitle}
             </button>
-            <button
-              id="tab-compare-hero"
-              role="tab"
-              aria-selected={inputMode === 'compare'}
-              aria-controls="panel-compare-hero"
-              className={`upload-mode-tab ${inputMode === 'compare' ? 'active' : ''}`}
-              onClick={() => {
-                setInputMode('compare');
-                onSelectCompare();
-              }}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M16 3h5v5"></path>
-                <path d="M4 21h5v-5"></path>
-                <path d="M21 3 14 10"></path>
-                <path d="M3 21l7-7"></path>
-              </svg>
-              Compare Docs
-            </button>
           </div>
 
           <div key={inputMode} className="tab-panel-animated">
@@ -221,7 +202,7 @@ export default function LandingPage({
                 <p className="dropzone-text">{t.dropzoneText}</p>
                 <p className="dropzone-hint">{t.dropzoneHint}</p>
               </div>
-            ) : inputMode === 'text' ? (
+            ) : (
               <div id="panel-text" role="tabpanel" aria-labelledby="tab-text" className="hero-text-box">
                 <textarea
                   value={textInput}
@@ -239,30 +220,24 @@ export default function LandingPage({
                   {t.analyzeText}
                 </button>
               </div>
-            ) : (
-              <div id="panel-compare-hero" role="tabpanel" aria-labelledby="tab-compare-hero" className="hero-text-box" style={{ textAlign: 'center', padding: '1.75rem 1rem' }}>
-                <div style={{ fontSize: '2.2rem', marginBottom: '0.4rem' }}>⚡</div>
-                <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: 'var(--text-primary)' }}>Contract Comparison Mode</h3>
-                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', margin: '0 0 1.25rem 0' }}>
-                  Spot term differences, liability shifts, and hidden changes between two contract versions.
-                </p>
-                <button
-                  className="hero-submit-btn"
-                  onClick={onSelectCompare}
-                >
-                  Compare Documents Side-by-Side →
-                </button>
-              </div>
             )}
           </div>
 
-          <div className="sample-docs">
-            <span className="sample-label">Or try sample:</span>
+          <div className="sample-docs" style={{ flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' }}>
+            <span className="sample-label">Try quick action:</span>
             <button className="sample-btn" onClick={() => onProcessText(SAMPLE_NDA)} disabled={isAnalyzing}>
               {t.sampleNDA}
             </button>
             <button className="sample-btn" onClick={() => onProcessText(SAMPLE_LEASE)} disabled={isAnalyzing}>
               {t.sampleLease}
+            </button>
+            <button
+              className="sample-btn"
+              onClick={onSelectCompare}
+              disabled={isAnalyzing}
+              style={{ background: 'var(--accent-light)', color: 'var(--accent-color)', fontWeight: 600, borderColor: 'var(--accent-color)' }}
+            >
+              ⚡ Compare 2 Contracts
             </button>
           </div>
         </div>

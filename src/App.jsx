@@ -276,7 +276,18 @@ function App() {
                     className={`tab-button ${activeTab === 'analysis' ? 'active' : ''}`}
                     onClick={() => setActiveTab('analysis')}
                   >
-                    {t.analysisTab || 'Analysis'}
+                    📊 {t.analysisTab || 'Analysis'}
+                  </button>
+
+                  <button
+                    id="tab-compare"
+                    role="tab"
+                    aria-selected={activeTab === 'compare'}
+                    aria-controls="panel-compare"
+                    className={`tab-button ${activeTab === 'compare' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('compare')}
+                  >
+                    ⚡ Compare Contracts
                   </button>
 
                   <button
@@ -287,7 +298,7 @@ function App() {
                     className={`tab-button ${activeTab === 'qa' ? 'active' : ''}`}
                     onClick={() => setActiveTab('qa')}
                   >
-                    {t.qaTab || 'Q&A'}
+                    💬 {t.qaTab || 'Q&A'}
                   </button>
                 </div>
 

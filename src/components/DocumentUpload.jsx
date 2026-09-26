@@ -121,30 +121,10 @@ export default function DocumentUpload({
         >
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
             <line x1="16" y1="13" x2="8" y2="13"></line>
             <line x1="16" y1="17" x2="8" y2="17"></line>
           </svg>
           {t.pasteTitle}
-        </button>
-        <button
-          id="sidebar-tab-compare"
-          role="tab"
-          aria-selected={inputMode === 'compare'}
-          aria-controls="sidebar-panel-compare"
-          className={`upload-mode-tab ${inputMode === 'compare' ? 'active' : ''}`}
-          onClick={() => {
-            setInputMode('compare');
-            onSelectCompare();
-          }}
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M16 3h5v5"></path>
-            <path d="M4 21h5v-5"></path>
-            <path d="M21 3 14 10"></path>
-            <path d="M3 21l7-7"></path>
-          </svg>
-          Compare Docs
         </button>
       </div>
 
@@ -208,7 +188,7 @@ export default function DocumentUpload({
               </div>
             )}
           </div>
-        ) : inputMode === 'text' ? (
+        ) : (
           <div id="sidebar-panel-text" role="tabpanel" aria-labelledby="sidebar-tab-text" className="text-input-box">
             <textarea
               value={textInput}
@@ -226,22 +206,32 @@ export default function DocumentUpload({
               {isProcessing ? 'Analyzing...' : t.analyzeText}
             </button>
           </div>
-        ) : (
-          <div id="sidebar-panel-compare" role="tabpanel" aria-labelledby="sidebar-tab-compare" className="text-input-box" style={{ textAlign: 'center', padding: '1.5rem 1rem' }}>
-            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⚡</div>
-            <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', color: 'var(--text-primary)' }}>Contract Comparison</h3>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0 0 1.25rem 0', lineHeight: 1.4 }}>
-              Compare two contracts or agreements side-by-side to spot hidden term changes and risk differences.
-            </p>
-            <button 
-              type="button"
-              className="text-submit-button"
-              onClick={onSelectCompare}
-            >
-              Open Comparison Tool →
-            </button>
-          </div>
         )}
+      </div>
+
+      <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--card-border)' }}>
+        <button
+          type="button"
+          onClick={onSelectCompare}
+          style={{
+            background: 'var(--accent-light)',
+            border: '1px solid var(--card-border)',
+            borderRadius: '6px',
+            padding: '0.65rem 0.85rem',
+            fontSize: '0.8rem',
+            fontWeight: 500,
+            color: 'var(--accent-color)',
+            cursor: 'pointer',
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.4rem',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <span>⚡ Compare Two Contracts Side-by-Side</span>
+        </button>
       </div>
     </div>
   );
