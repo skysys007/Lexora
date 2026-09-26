@@ -280,17 +280,6 @@ function App() {
                   </button>
 
                   <button
-                    id="tab-compare"
-                    role="tab"
-                    aria-selected={activeTab === 'compare'}
-                    aria-controls="panel-compare"
-                    className={`tab-button ${activeTab === 'compare' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('compare')}
-                  >
-                    Compare Docs
-                  </button>
-
-                  <button
                     id="tab-qa"
                     role="tab"
                     aria-selected={activeTab === 'qa'}
