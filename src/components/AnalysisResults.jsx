@@ -8,9 +8,20 @@ import { announceToScreenReader } from '../utils/a11yHelpers';
 import { UI_TRANSLATIONS } from '../constants/a11yConstants';
 
 const sanitizeUrl = (url) => {
-  if (!url || typeof url !== 'string') return '';
+  if (!url || typeof url !== 'string') return '#';
   const clean = url.trim().toLowerCase();
-  if (clean.startsWith('javascript:') || clean.startsWith('data:') || clean.startsWith('vbscript:')) {
+  if (
+    clean.startsWith('javascript:') ||
+    clean.startsWith('data:') ||
+    clean.startsWith('vbscript:') ||
+    clean.startsWith('file:') ||
+    clean.startsWith('blob:') ||
+    clean.startsWith('about:') ||
+    clean.startsWith('chrome:')
+  ) {
+    return '#';
+  }
+  if (!clean.startsWith('http://') && !clean.startsWith('https://') && !clean.startsWith('mailto:') && !clean.startsWith('#') && !clean.startsWith('/')) {
     return '#';
   }
   return url;
@@ -152,7 +163,7 @@ export default function AnalysisResults({ results, isLoading, a11yConfig = {} })
         <h2>Document Analysis</h2>
       </div>
       <div className="results-content markdown-body">
-        <ReactMarkdown remarkPlugins={[remarkGfm]} urlTransform={sanitizeUrl}>{results}</ReactMarkdown>
+        <ReactMarkdown skipHtml={true} remarkPlugins={[remarkGfm]} urlTransform={sanitizeUrl}>{results}</ReactMarkdown>
       </div>
     </div>
   );

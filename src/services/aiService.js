@@ -10,6 +10,33 @@ const responseCache = new Map();
 const MAX_RESPONSE_CACHE_SIZE = 30;
 
 /**
+ * Redact sensitive credential strings from error messages to prevent accidental logging leaks.
+ * @param {string} input - Raw text string
+ * @returns {string} Sanitized text string
+ */
+export function redactSensitive(input) {
+  if (!input || typeof input !== 'string') return '';
+  return input
+    .replace(/gsk_[A-Za-z0-9_]+/gi, '[REDACTED_KEY]')
+    .replace(/Bearer\s+[A-Za-z0-9_-]+/gi, 'Bearer [REDACTED_KEY]');
+}
+
+/**
+ * Sanitize prompt text against control characters and XML tag breakout attempts.
+ * @param {string} text - Input document text
+ * @returns {string} Sanitized prompt content
+ */
+export function sanitizePromptContent(text) {
+  if (!text || typeof text !== 'string') return '';
+  return text
+    .replace(/\0/g, '')
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+    .replace(/<\/?document_content>/gi, '') // Prevent XML tag breakout
+    .replace(/<\/?document_[ab]>/gi, '')
+    .trim();
+}
+
+/**
  * Generate a cache key from messages and active configuration.
  * @param {Array<Object>} messages 
  * @param {Object} config 
@@ -35,7 +62,6 @@ export function validateEndpointUrl(endpoint) {
     throw new Error("Invalid API endpoint.");
   }
   const trimmed = endpoint.trim();
-  const lower = trimmed.toLowerCase();
 
   try {
     const parsed = new URL(trimmed);
@@ -46,10 +72,11 @@ export function validateEndpointUrl(endpoint) {
       return trimmed;
     }
   } catch {
-    // If URL constructor fails, fallback to prefix matching
+    const lower = trimmed.toLowerCase();
     if (lower.startsWith('https://') || lower.startsWith('http://localhost') || lower.startsWith('http://127.0.0.1')) {
       return trimmed;
     }
+    throw new Error("Security Error: Invalid API endpoint URL format.");
   }
 
   throw new Error("Security Error: API endpoint must use HTTPS or local development address.");
@@ -109,7 +136,8 @@ async function callLLM(promptMessages, config = DEFAULT_API_CONFIG, temperature 
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error?.message || `API request failed (${response.status})`);
+      const rawMsg = errorData.error?.message || `API request failed (${response.status})`;
+      throw new Error(redactSensitive(rawMsg));
     }
 
     const data = await response.json();
@@ -129,6 +157,7 @@ async function callLLM(promptMessages, config = DEFAULT_API_CONFIG, temperature 
     if (err.name === 'AbortError') {
       throw new Error("API request timed out (30s). Please check your internet connection or try again.");
     }
+    err.message = redactSensitive(err.message);
     throw err;
   } finally {
     clearTimeout(timeoutId);
@@ -150,7 +179,7 @@ export function clearResponseCache() {
  * @returns {Promise<string>} Raw JSON response string
  */
 export async function analyzeLegalDocument(documentText, config = DEFAULT_API_CONFIG, a11yOptions = {}) {
-  const safeText = (documentText || '').substring(0, 25000);
+  const safeText = sanitizePromptContent(documentText).substring(0, 25000);
 
   let extraInstructions = '';
   if (a11yOptions.simplifiedLanguage) {
@@ -174,7 +203,7 @@ export async function analyzeLegalDocument(documentText, config = DEFAULT_API_CO
  * @returns {Promise<string>} Answer string
  */
 export async function askQuestion(documentText, conversationHistory, userQuestion, config = DEFAULT_API_CONFIG, a11yOptions = {}) {
-  const safeText = (documentText || '').substring(0, 25000);
+  const safeText = sanitizePromptContent(documentText).substring(0, 25000);
 
   let extraInstructions = '';
   if (a11yOptions.simplifiedLanguage) {
@@ -188,13 +217,13 @@ export async function askQuestion(documentText, conversationHistory, userQuestio
 
   const sanitizedHistory = (conversationHistory || []).map(msg => ({
     role: msg.role === 'assistant' ? 'assistant' : 'user',
-    content: String(msg.content || '').substring(0, 2000)
+    content: sanitizePromptContent(msg.content).substring(0, 2000)
   }));
 
   const messages = [
     { role: "system", content: systemMessage },
     ...sanitizedHistory,
-    { role: "user", content: String(userQuestion || '').substring(0, 1000) }
+    { role: "user", content: sanitizePromptContent(userQuestion).substring(0, 1000) }
   ];
 
   return callLLM(messages, config, 0.3);
@@ -209,8 +238,8 @@ export async function askQuestion(documentText, conversationHistory, userQuestio
  * @returns {Promise<string>} Raw JSON comparison string
  */
 export async function compareLegalDocuments(docTextA, docTextB, config = DEFAULT_API_CONFIG, a11yOptions = {}) {
-  const safeA = (docTextA || '').substring(0, 15000);
-  const safeB = (docTextB || '').substring(0, 15000);
+  const safeA = sanitizePromptContent(docTextA).substring(0, 15000);
+  const safeB = sanitizePromptContent(docTextB).substring(0, 15000);
 
   let extraInstructions = '';
   if (a11yOptions.simplifiedLanguage) {

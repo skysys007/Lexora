@@ -5,9 +5,20 @@ import { askQuestion } from '../services/aiService';
 import { announceToScreenReader } from '../utils/a11yHelpers';
 
 const sanitizeUrl = (url) => {
-  if (!url || typeof url !== 'string') return '';
+  if (!url || typeof url !== 'string') return '#';
   const clean = url.trim().toLowerCase();
-  if (clean.startsWith('javascript:') || clean.startsWith('data:') || clean.startsWith('vbscript:')) {
+  if (
+    clean.startsWith('javascript:') ||
+    clean.startsWith('data:') ||
+    clean.startsWith('vbscript:') ||
+    clean.startsWith('file:') ||
+    clean.startsWith('blob:') ||
+    clean.startsWith('about:') ||
+    clean.startsWith('chrome:')
+  ) {
+    return '#';
+  }
+  if (!clean.startsWith('http://') && !clean.startsWith('https://') && !clean.startsWith('mailto:') && !clean.startsWith('#') && !clean.startsWith('/')) {
     return '#';
   }
   return url;
@@ -104,7 +115,7 @@ export default function DocumentQA({ documentText, apiConfig, apiKey, a11yConfig
             <div className="qa-message-content">
               {msg.role === 'assistant' ? (
                 <div className="markdown-body">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]} urlTransform={sanitizeUrl}>{msg.content}</ReactMarkdown>
+                  <ReactMarkdown skipHtml={true} remarkPlugins={[remarkGfm]} urlTransform={sanitizeUrl}>{msg.content}</ReactMarkdown>
                 </div>
               ) : (
                 <p>{msg.content}</p>
