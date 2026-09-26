@@ -54,13 +54,17 @@ export function validateUploadedFile(file) {
 
 /**
  * Sanitize and enforce maximum length on raw text input.
+ * Strips null bytes and non-printable control characters.
  * @param {string} text 
- * @returns {string}
+ * @returns {string} Cleaned sanitized text
  */
 export function sanitizeTextInput(text) {
   if (!text || typeof text !== 'string') return '';
-  // Remove null bytes and restrict length
-  const cleaned = text.replace(/\0/g, '').trim();
+  // Remove null bytes and non-printable control characters except newlines/tabs
+  const cleaned = text
+    .replace(/\0/g, '')
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+    .trim();
   return cleaned.substring(0, MAX_TEXT_INPUT_LENGTH);
 }
 

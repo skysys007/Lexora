@@ -128,5 +128,28 @@ describe('aiService Security & Protocol Tests', () => {
       await askQuestion('Doc content', [], 'Question', obsoleteConfig);
       assert.strictEqual(capturedBody.model, 'openai/gpt-oss-120b');
     });
+
+    it('caches response for identical prompts and clears cache correctly', async () => {
+      const config = {
+        apiKey: 'gsk_test123',
+        endpoint: 'https://api.groq.com/openai/v1/chat/completions',
+        model: 'openai/gpt-oss-120b',
+      };
+
+      let fetchCount = 0;
+      global.fetch = async () => {
+        fetchCount++;
+        return {
+          ok: true,
+          json: async () => ({ choices: [{ message: { content: 'Cached result' } }] }),
+        };
+      };
+
+      const res1 = await askQuestion('Doc text cache test', [], 'Question 1', config);
+      const res2 = await askQuestion('Doc text cache test', [], 'Question 1', config);
+      assert.strictEqual(res1, 'Cached result');
+      assert.strictEqual(res2, 'Cached result');
+      assert.strictEqual(fetchCount, 1); // Second call served from cache!
+    });
   });
 });

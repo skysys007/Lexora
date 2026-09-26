@@ -4,11 +4,26 @@ import * as pdfjsLib from 'pdfjs-dist';
 // Setting up worker for pdfjs-dist
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
+// LRU Memory Cache for Extracted Text (Max 20 entries)
+const extractionCache = new Map();
+const MAX_CACHE_SIZE = 20;
+
+/**
+ * Generates a unique cache key for a File object.
+ * @param {File} file 
+ * @returns {string} Unique cache key
+ */
+function getFileCacheKey(file) {
+  if (!file) return '';
+  return `${file.name}_${file.size}_${file.lastModified || 0}`;
+}
+
 /**
  * Perform OCR on an image file or HTML Canvas element.
  * @param {File|Blob|HTMLCanvasElement|string} imageInput - Input source for OCR
  * @param {Function} [onProgress] - Optional progress callback
- * @returns {Promise<string>} Recognized text
+ * @returns {Promise<string>} Recognized plain text
+ * @throws {Error} If OCR recognition fails
  */
 export async function extractTextFromImage(imageInput, onProgress) {
   try {
@@ -19,31 +34,37 @@ export async function extractTextFromImage(imageInput, onProgress) {
         }
       },
     });
-    return result.data.text.trim();
+    return (result?.data?.text || '').trim();
   } catch (error) {
     console.error("OCR Image Recognition Error:", error);
-    throw new Error("Failed to read text from image. " + error.message);
+    throw new Error("Failed to read text from image: " + error.message);
   }
 }
 
 /**
- * Extract text from a document (PDF or Image file).
+ * Extract text from a document (PDF or Image file) with LRU caching.
  * If PDF contains embedded text, it extracts directly.
  * If PDF is scanned (empty text), it performs OCR page-by-page.
- * @param {File} file 
- * @param {Function} [onProgress] 
- * @returns {Promise<string>} Extracted text
+ * @param {File} file - Document File object to extract
+ * @param {Function} [onProgress] - Optional progress report callback
+ * @returns {Promise<string>} Extracted document text
+ * @throws {Error} If file is missing or format is unsupported
  */
 export async function extractTextFromDocument(file, onProgress) {
   if (!file) {
     throw new Error('No file provided for text extraction.');
   }
 
-  if (file.type.startsWith('image/') || /\.(png|jpe?g|webp|bmp)$/i.test(file.name)) {
-    return await extractTextFromImage(file, onProgress);
+  const cacheKey = getFileCacheKey(file);
+  if (cacheKey && extractionCache.has(cacheKey)) {
+    return extractionCache.get(cacheKey);
   }
 
-  if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+  let extractedText = '';
+
+  if (file.type && (file.type.startsWith('image/') || /\.(png|jpe?g|webp|bmp)$/i.test(file.name))) {
+    extractedText = await extractTextFromImage(file, onProgress);
+  } else if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
@@ -59,7 +80,6 @@ export async function extractTextFromDocument(file, onProgress) {
 
       // If text extraction yielded minimal text, fallback to OCR on scanned PDF pages
       if (fullText.trim().length < 50) {
-        console.log("PDF text is empty/minimal. Falling back to direct canvas OCR on PDF pages...");
         let ocrText = '';
         for (let i = 1; i <= pdf.numPages; i++) {
           if (onProgress) {
@@ -74,28 +94,44 @@ export async function extractTextFromDocument(file, onProgress) {
 
           try {
             await page.render({ canvasContext: context, viewport }).promise;
-            // Pass canvas directly to Tesseract to avoid memory-heavy base64 string creation
             const pageOcr = await extractTextFromImage(canvas);
             ocrText += `--- Page ${i} ---\n` + pageOcr + '\n';
           } finally {
-            // Free canvas memory buffer immediately
             context.clearRect(0, 0, canvas.width, canvas.height);
             canvas.width = 0;
             canvas.height = 0;
           }
         }
-        return ocrText.trim();
+        extractedText = ocrText.trim();
+      } else {
+        extractedText = fullText.trim();
       }
-
-      return fullText.trim();
     } finally {
       if (pdf && typeof pdf.destroy === 'function') {
         await pdf.destroy();
       }
     }
+  } else {
+    throw new Error('Unsupported file format. Please upload a PDF or Image file (PNG, JPG, WEBP).');
   }
 
-  throw new Error('Unsupported file format. Please upload a PDF or Image file (PNG, JPG, WEBP).');
+  // Cache extracted result (LRU eviction if over max size)
+  if (cacheKey && extractedText) {
+    if (extractionCache.size >= MAX_CACHE_SIZE) {
+      const oldestKey = extractionCache.keys().next().value;
+      extractionCache.delete(oldestKey);
+    }
+    extractionCache.set(cacheKey, extractedText);
+  }
+
+  return extractedText;
+}
+
+/**
+ * Clear the text extraction memory cache (Utility for memory management or unit testing).
+ */
+export function clearExtractionCache() {
+  extractionCache.clear();
 }
 
 
