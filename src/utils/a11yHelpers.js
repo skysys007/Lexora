@@ -82,6 +82,7 @@ export function trapFocus(containerElement) {
 export function stripMarkdownForSpeech(text) {
   if (!text || typeof text !== 'string') return '';
   return text
+    .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}\u{FE00}-\u{FE0F}\u{1F000}-\u{1F02F}\u{1F0A0}-\u{1F0DF}]/gu, '') // remove all emojis
     .replace(/#{1,6}\s+/g, '') // remove headings
     .replace(/\*{1,2}([^*]+)\*{1,2}/g, '$1') // remove bold/italic
     .replace(/`{1,3}[^`]*`{1,3}/g, '') // remove code blocks

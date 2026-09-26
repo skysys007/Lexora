@@ -191,7 +191,7 @@ export default function DocumentCompare({ apiConfig, a11yConfig = {} }) {
                       <div className="diff-card-header">
                         <span className="diff-topic">{item.topic}</span>
                         <span className={`diff-risk-badge ${item.risk_change}`}>
-                          {item.risk_change === 'increased_risk' ? '⚠️ Increased Risk' : item.risk_change === 'decreased_risk' ? '✅ Better Protection' : 'ℹ️ Neutral'}
+                          {item.risk_change === 'increased_risk' ? 'Increased Risk' : item.risk_change === 'decreased_risk' ? 'Better Protection' : 'Neutral'}
                         </span>
                       </div>
 

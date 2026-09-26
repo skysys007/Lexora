@@ -94,9 +94,10 @@ const AudioReader = memo(function AudioReader({
         synth.resume();
       }
 
-      // Chunk long text by sentences for maximum cross-browser reliability
+      // Chunk long text by sentences without lookbehind regex for 100% browser compatibility
       const sentences = spokenText
-        .split(/(?<=[.!?])\s+/)
+        .replace(/([.!?])\s+/g, '$1|SPLIT|')
+        .split('|SPLIT|')
         .map(s => s.trim())
         .filter(s => s.length > 0);
 

@@ -269,7 +269,7 @@ function App() {
                     className={`tab-button ${activeTab === 'analysis' ? 'active' : ''}`}
                     onClick={() => setActiveTab('analysis')}
                   >
-                    🔍 {t.analysisTab || 'Analysis'}
+                    {t.analysisTab || 'Analysis'}
                   </button>
 
                   <button
@@ -280,7 +280,7 @@ function App() {
                     className={`tab-button ${activeTab === 'compare' ? 'active' : ''}`}
                     onClick={() => setActiveTab('compare')}
                   >
-                    ⚖️ Compare Docs
+                    Compare Docs
                   </button>
 
                   <button
@@ -291,7 +291,7 @@ function App() {
                     className={`tab-button ${activeTab === 'qa' ? 'active' : ''}`}
                     onClick={() => setActiveTab('qa')}
                   >
-                    💬 {t.qaTab || 'Q&A'}
+                    {t.qaTab || 'Q&A'}
                   </button>
                 </div>
 

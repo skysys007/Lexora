@@ -62,7 +62,6 @@ export default function AnalysisResults({ results, isLoading, a11yConfig = {} })
     const { document_type, one_line_summary, critical_points, risk_level, risk_reason } = parsedResults;
     const risk = RISK_COLOR_PALETTE[risk_level] || RISK_COLOR_PALETTE.medium;
 
-    const riskIcon = risk_level === 'high' ? '🛑 ' : risk_level === 'medium' ? '⚠️ ' : '✅ ';
     const riskLabelText = risk_level === 'high' ? t.highRisk : risk_level === 'medium' ? t.mediumRisk : t.lowRisk;
 
     const fullAnalysisSpeech = `
@@ -134,7 +133,7 @@ export default function AnalysisResults({ results, isLoading, a11yConfig = {} })
           aria-label={`Risk Assessment: ${riskLabelText}`}
         >
           <span className="risk-label" style={{ color: risk.text }}>
-            {riskIcon} {riskLabelText}
+            {riskLabelText}
           </span>
           {risk_reason && <p className="risk-reason" style={{ color: risk.text }}>{risk_reason}</p>}
         </div>

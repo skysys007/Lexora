@@ -26,7 +26,6 @@ const PointCard = memo(function PointCard({ point, a11yConfig = {} }) {
       <header className="point-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
           <span className={`point-badge ${severityClass}`}>
-            {isHighSeverity ? '⚠️ ' : 'ℹ️ '}
             {badgeLabel}
           </span>
           <h3 className="point-title" style={{ margin: 0 }}>{point.title}</h3>
