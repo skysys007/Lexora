@@ -118,6 +118,11 @@ function App() {
     setCurrentView((prev) => (prev === nextView ? prev : nextView));
   }, []);
 
+  const handleSelectCompare = useCallback(() => {
+    switchView('workspace');
+    setActiveTab('compare');
+  }, [switchView]);
+
   const handleProcessDocument = useCallback(async (file) => {
     const effectiveKey = (apiConfig.apiKey && apiConfig.apiKey.trim()) || DEFAULT_API_CONFIG.apiKey;
     if (!effectiveKey) {
@@ -245,6 +250,7 @@ function App() {
           <LandingPage
             onProcessDocument={handleProcessDocument}
             onProcessText={handleProcessText}
+            onSelectCompare={handleSelectCompare}
             isAnalyzing={isAnalyzing}
             a11yConfig={a11yConfig}
           />
@@ -255,6 +261,7 @@ function App() {
                 <DocumentUpload
                   onProcessDocument={handleProcessDocument}
                   onProcessText={handleProcessText}
+                  onSelectCompare={handleSelectCompare}
                   a11yConfig={a11yConfig}
                 />
               </div>
