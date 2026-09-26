@@ -108,5 +108,25 @@ describe('aiService Security & Protocol Tests', () => {
       assert.strictEqual(capturedBody.model, 'custom-model-99');
       assert.strictEqual(capturedBody.messages.length, 3); // System prompt + history + current question
     });
+
+    it('sanitizes obsolete model names to default model', async () => {
+      const obsoleteConfig = {
+        apiKey: 'gsk_test123',
+        endpoint: 'https://api.groq.com/openai/v1/chat/completions',
+        model: 'llama-3.3-70b-versatile',
+      };
+
+      let capturedBody = null;
+      global.fetch = async (url, options) => {
+        capturedBody = JSON.parse(options.body);
+        return {
+          ok: true,
+          json: async () => ({ choices: [{ message: { content: 'Sanitized model answer' } }] }),
+        };
+      };
+
+      await askQuestion('Doc content', [], 'Question', obsoleteConfig);
+      assert.strictEqual(capturedBody.model, 'openai/gpt-oss-120b');
+    });
   });
 });

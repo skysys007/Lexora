@@ -40,7 +40,19 @@ function App() {
   const [apiConfig, setApiConfig] = useState(() => {
     try {
       const saved = localStorage.getItem('lexora_api_config');
-      return saved ? { ...DEFAULT_API_CONFIG, ...JSON.parse(saved) } : DEFAULT_API_CONFIG;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (!parsed.model || parsed.model.includes('llama-3.3-70b-versatile') || parsed.model.includes('llama3-70b-8192')) {
+          parsed.model = DEFAULT_API_CONFIG.model;
+          try {
+            localStorage.setItem('lexora_api_config', JSON.stringify({ ...DEFAULT_API_CONFIG, ...parsed }));
+          } catch {
+            // Ignore storage errors
+          }
+        }
+        return { ...DEFAULT_API_CONFIG, ...parsed };
+      }
+      return DEFAULT_API_CONFIG;
     } catch {
       return DEFAULT_API_CONFIG;
     }

@@ -5,7 +5,7 @@
 export const DEFAULT_API_CONFIG = {
   apiKey: (typeof import.meta !== 'undefined' && import.meta.env && (import.meta.env.VITE_GROQ_API_KEY || import.meta.env.VITE_GEMINI_API_KEY)) || '',
   endpoint: 'https://api.groq.com/openai/v1/chat/completions',
-  model: 'llama-3.3-70b-versatile',
+  model: 'openai/gpt-oss-120b',
 };
 
 export const TYPEWRITER_PHRASES = [

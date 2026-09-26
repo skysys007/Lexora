@@ -30,7 +30,12 @@ async function callLLM(promptMessages, config = DEFAULT_API_CONFIG, temperature 
   const effectiveKey = (config && typeof config.apiKey === 'string')
     ? config.apiKey.trim()
     : (activeConfig.apiKey || '').trim();
-  const { endpoint, model } = activeConfig;
+  let modelToUse = activeConfig.model;
+  if (!modelToUse || typeof modelToUse !== 'string' || modelToUse.includes('llama-3.3-70b-versatile') || modelToUse.includes('llama3-70b-8192')) {
+    modelToUse = DEFAULT_API_CONFIG.model;
+  }
+
+  const { endpoint } = activeConfig;
 
   if (!effectiveKey) {
     throw new Error("API Key is missing. Please configure it in Dev Settings.");
@@ -45,7 +50,7 @@ async function callLLM(promptMessages, config = DEFAULT_API_CONFIG, temperature 
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      model: model,
+      model: modelToUse,
       messages: promptMessages,
       temperature: temperature
     })
