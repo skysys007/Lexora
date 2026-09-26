@@ -2,7 +2,6 @@ import { useState, useRef } from 'react';
 import { compareLegalDocuments } from '../services/aiService';
 import { validateUploadedFile, sanitizeTextInput } from '../utils/fileHelpers';
 import { extractTextFromDocument } from '../services/ocrService';
-import AudioReader from './AudioReader';
 
 import { DEFAULT_API_CONFIG } from '../constants/appConstants';
 
@@ -173,13 +172,6 @@ export default function DocumentCompare({ apiConfig, a11yConfig = {} }) {
                     </div>
                   )}
                 </div>
-
-                <AudioReader
-                  text={`${comparisonResult.comparison_summary}. More favorable document: ${comparisonResult.more_favorable_document}. Reason: ${comparisonResult.favorable_reason}`}
-                  label="Comparison Summary"
-                  lang={a11yConfig.language || 'en'}
-                  rate={a11yConfig.ttsSpeed || 1.0}
-                />
               </div>
 
               {comparisonResult.key_differences && comparisonResult.key_differences.length > 0 && (

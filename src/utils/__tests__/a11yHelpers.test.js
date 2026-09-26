@@ -29,6 +29,12 @@ describe('a11yHelpers & Constants Unit Tests', () => {
       assert.equal(output, '. Item 1. Item 2. Item 3');
     });
 
+    it('strips all emojis from text', () => {
+      const input = '🛑 High Risk ⚠️ Caution ✅ Approved ⚖️ Legal';
+      const output = stripMarkdownForSpeech(input);
+      assert.equal(output, 'High Risk Caution Approved Legal');
+    });
+
     it('handles empty or non-string input gracefully', () => {
       assert.equal(stripMarkdownForSpeech(null), '');
       assert.equal(stripMarkdownForSpeech(undefined), '');

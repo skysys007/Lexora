@@ -163,22 +163,6 @@ export default function AccessibilityModal({ config, onChange, onClose }) {
                 ))}
               </select>
             </div>
-
-            <div className="dev-field">
-              <label htmlFor="a11y-speech-rate">{t.speechSpeed}</label>
-              <div className="a11y-segmented-control" id="a11y-speech-rate">
-                {[0.8, 1.0, 1.25, 1.5].map((speed) => (
-                  <button
-                    key={speed}
-                    type="button"
-                    className={config.ttsSpeed === speed ? 'active' : ''}
-                    onClick={() => updateSetting('ttsSpeed', speed)}
-                  >
-                    {speed}x
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
 

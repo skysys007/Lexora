@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { askQuestion } from '../services/aiService';
-import AudioReader from './AudioReader';
 import { announceToScreenReader } from '../utils/a11yHelpers';
 
 const sanitizeUrl = (url) => {
@@ -104,19 +103,8 @@ export default function DocumentQA({ documentText, apiConfig, apiKey, a11yConfig
           <div key={index} className={`qa-message ${msg.role}`}>
             <div className="qa-message-content">
               {msg.role === 'assistant' ? (
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.4rem' }}>
-                    <AudioReader
-                      text={msg.content}
-                      label="AI Response"
-                      compact={true}
-                      lang={currentLang}
-                      rate={a11yConfig.ttsSpeed || 1.0}
-                    />
-                  </div>
-                  <div className="markdown-body">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]} urlTransform={sanitizeUrl}>{msg.content}</ReactMarkdown>
-                  </div>
+                <div className="markdown-body">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} urlTransform={sanitizeUrl}>{msg.content}</ReactMarkdown>
                 </div>
               ) : (
                 <p>{msg.content}</p>

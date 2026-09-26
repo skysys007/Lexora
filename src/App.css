@@ -1884,59 +1884,7 @@ body.reduced-motion-mode *::after {
   cursor: pointer;
 }
 
-/* Audio Reader UI Component */
-.audio-reader-container {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-}
 
-.audio-reader-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.75rem;
-  border: 1px solid var(--card-border);
-  border-radius: 20px;
-  background: var(--accent-light);
-  color: var(--accent-color);
-  font-family: inherit;
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.audio-reader-btn:hover {
-  background: var(--card-bg);
-  border-color: var(--accent-color);
-  transform: translateY(-1px);
-}
-
-.audio-reader-btn.active {
-  background: var(--accent-color);
-  color: var(--qa-user-text);
-  border-color: var(--accent-color);
-}
-
-.audio-stop-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 1px solid var(--card-border);
-  background: rgba(244, 67, 54, 0.1);
-  color: #f44336;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.audio-stop-btn:hover {
-  background: rgba(244, 67, 54, 0.25);
-  transform: scale(1.05);
-}
 
 /* Nav A11y Settings Button */
 .a11y-settings-button-nav {

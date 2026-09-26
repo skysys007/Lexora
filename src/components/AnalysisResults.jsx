@@ -3,7 +3,6 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import SimplePageFlipLoader from './SimplePageFlipLoader';
 import PointCard from './PointCard';
-import AudioReader from './AudioReader';
 import { RISK_COLOR_PALETTE } from '../constants/appConstants';
 import { announceToScreenReader } from '../utils/a11yHelpers';
 import { UI_TRANSLATIONS } from '../constants/a11yConstants';
@@ -107,12 +106,6 @@ export default function AnalysisResults({ results, isLoading, a11yConfig = {} })
           <div className="analysis-header-top">
             <h2>{document_type || "Document Analysis"}</h2>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <AudioReader
-                text={fullAnalysisSpeech}
-                label="Full Analysis Summary"
-                lang={currentLang}
-                rate={a11yConfig.ttsSpeed || 1.0}
-              />
               <button className="export-btn" onClick={handleExport} title="Download analysis report" aria-label="Export report as markdown file">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -157,12 +150,6 @@ export default function AnalysisResults({ results, isLoading, a11yConfig = {} })
     <div className="results-container" role="region" aria-label="Document Analysis Output">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2>Document Analysis</h2>
-        <AudioReader
-          text={results}
-          label="Document Analysis Output"
-          lang={currentLang}
-          rate={a11yConfig.ttsSpeed || 1.0}
-        />
       </div>
       <div className="results-content markdown-body">
         <ReactMarkdown remarkPlugins={[remarkGfm]} urlTransform={sanitizeUrl}>{results}</ReactMarkdown>
