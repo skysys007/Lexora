@@ -88,9 +88,12 @@ export default function DevPanel({ config, onConfigChange, onClose }) {
                 value={tempConfig.apiKey || ''}
                 onChange={(e) => setTempConfig({ ...tempConfig, apiKey: e.target.value })}
                 onKeyDown={handleInputKeyDown}
-                placeholder="gsk_..."
+                placeholder="System Default Key (Hidden)"
                 autoComplete="off"
               />
+              <small style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '4px' }}>
+                {tempConfig.apiKey ? 'Custom key configured (hidden).' : 'Using default environment API key (hidden & secured).'}
+              </small>
             </div>
             <div className="dev-field">
               <label htmlFor="api-endpoint-input">Endpoint</label>

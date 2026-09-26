@@ -29,9 +29,10 @@ function validateEndpointUrl(endpoint) {
  */
 async function callLLM(promptMessages, config = DEFAULT_API_CONFIG, temperature = 0.1) {
   const activeConfig = { ...DEFAULT_API_CONFIG, ...config };
-  const { apiKey, endpoint, model } = activeConfig;
+  const effectiveKey = (activeConfig.apiKey && activeConfig.apiKey.trim()) || DEFAULT_API_CONFIG.apiKey;
+  const { endpoint, model } = activeConfig;
 
-  if (!apiKey) {
+  if (!effectiveKey) {
     throw new Error("API Key is missing. Please configure it in Dev Settings.");
   }
 
@@ -40,7 +41,7 @@ async function callLLM(promptMessages, config = DEFAULT_API_CONFIG, temperature 
   const response = await fetch(validEndpoint, {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${apiKey.trim()}`,
+      "Authorization": `Bearer ${effectiveKey.trim()}`,
       "Content-Type": "application/json"
     },
     body: JSON.stringify({

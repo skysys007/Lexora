@@ -109,7 +109,8 @@ function App() {
   }, []);
 
   const handleProcessDocument = useCallback(async (file) => {
-    if (!apiConfig.apiKey) {
+    const effectiveKey = (apiConfig.apiKey && apiConfig.apiKey.trim()) || DEFAULT_API_CONFIG.apiKey;
+    if (!effectiveKey) {
       alert("Please configure your API key in Dev Settings first.");
       setShowDevPanel(true);
       return;
@@ -136,7 +137,8 @@ function App() {
   }, [apiConfig, a11yConfig, switchView]);
 
   const handleProcessText = useCallback(async (text) => {
-    if (!apiConfig.apiKey) {
+    const effectiveKey = (apiConfig.apiKey && apiConfig.apiKey.trim()) || DEFAULT_API_CONFIG.apiKey;
+    if (!effectiveKey) {
       alert("Please configure your API key in Dev Settings first.");
       setShowDevPanel(true);
       return;
