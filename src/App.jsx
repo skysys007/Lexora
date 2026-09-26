@@ -13,8 +13,6 @@ import './App.css';
 const AnalysisResults = lazy(() => import('./components/AnalysisResults'));
 const DocumentQA = lazy(() => import('./components/DocumentQA'));
 const DocumentCompare = lazy(() => import('./components/DocumentCompare'));
-const ActionChecklist = lazy(() => import('./components/ActionChecklist'));
-const LawyerPrep = lazy(() => import('./components/LawyerPrep'));
 
 function App() {
   const [currentView, setCurrentView] = useState('landing'); // 'landing' | 'workspace'
@@ -274,28 +272,6 @@ function App() {
                   </button>
 
                   <button
-                    id="tab-checklist"
-                    role="tab"
-                    aria-selected={activeTab === 'checklist'}
-                    aria-controls="panel-checklist"
-                    className={`tab-button ${activeTab === 'checklist' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('checklist')}
-                  >
-                    ✅ Action Checklist
-                  </button>
-
-                  <button
-                    id="tab-lawyer"
-                    role="tab"
-                    aria-selected={activeTab === 'lawyer'}
-                    aria-controls="panel-lawyer"
-                    className={`tab-button ${activeTab === 'lawyer' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('lawyer')}
-                  >
-                    👨‍⚖️ Attorney Prep
-                  </button>
-
-                  <button
                     id="tab-qa"
                     role="tab"
                     aria-selected={activeTab === 'qa'}
@@ -318,18 +294,6 @@ function App() {
                     {activeTab === 'compare' && (
                       <div id="panel-compare" role="tabpanel" aria-labelledby="tab-compare">
                         <DocumentCompare apiConfig={apiConfig} a11yConfig={a11yConfig} />
-                      </div>
-                    )}
-
-                    {activeTab === 'checklist' && (
-                      <div id="panel-checklist" role="tabpanel" aria-labelledby="tab-checklist">
-                        <ActionChecklist documentText={documentText} apiConfig={apiConfig} a11yConfig={a11yConfig} />
-                      </div>
-                    )}
-
-                    {activeTab === 'lawyer' && (
-                      <div id="panel-lawyer" role="tabpanel" aria-labelledby="tab-lawyer">
-                        <LawyerPrep documentText={documentText} apiConfig={apiConfig} a11yConfig={a11yConfig} />
                       </div>
                     )}
 

@@ -1,9 +1,7 @@
 import {
   LEX_SYSTEM_PROMPT,
   QA_SYSTEM_PROMPT,
-  COMPARISON_SYSTEM_PROMPT,
-  CHECKLIST_SYSTEM_PROMPT,
-  LAWYER_PREP_SYSTEM_PROMPT
+  COMPARISON_SYSTEM_PROMPT
 } from './prompts.js';
 import { DEFAULT_API_CONFIG } from '../constants/appConstants.js';
 
@@ -29,7 +27,9 @@ function validateEndpointUrl(endpoint) {
  */
 async function callLLM(promptMessages, config = DEFAULT_API_CONFIG, temperature = 0.1) {
   const activeConfig = { ...DEFAULT_API_CONFIG, ...config };
-  const effectiveKey = (activeConfig.apiKey && activeConfig.apiKey.trim()) || DEFAULT_API_CONFIG.apiKey;
+  const effectiveKey = (config && typeof config.apiKey === 'string')
+    ? config.apiKey.trim()
+    : (activeConfig.apiKey || '').trim();
   const { endpoint, model } = activeConfig;
 
   if (!effectiveKey) {
@@ -133,35 +133,5 @@ ${safeA}
 ${safeB}
 </document_b>`;
 
-  return callLLM([{ role: "user", content: prompt }], config, 0.1);
-}
-
-/**
- * Generate actionable checklist (deadlines, obligations, prohibitions, financial terms).
- */
-export async function generateDocumentChecklist(documentText, config = DEFAULT_API_CONFIG, a11yOptions = {}) {
-  const safeText = (documentText || '').substring(0, 25000);
-
-  let extraInstructions = '';
-  if (a11yOptions.language && a11yOptions.language !== 'en') {
-    extraInstructions += `\n- INSTRUCTION: Respond in language: ${a11yOptions.language}.`;
-  }
-
-  const prompt = `${CHECKLIST_SYSTEM_PROMPT}${extraInstructions}\n\n<document_content>\n${safeText}\n</document_content>`;
-  return callLLM([{ role: "user", content: prompt }], config, 0.1);
-}
-
-/**
- * Generate attorney consultation brief and targeted lawyer questions.
- */
-export async function generateLawyerPrepBrief(documentText, config = DEFAULT_API_CONFIG, a11yOptions = {}) {
-  const safeText = (documentText || '').substring(0, 25000);
-
-  let extraInstructions = '';
-  if (a11yOptions.language && a11yOptions.language !== 'en') {
-    extraInstructions += `\n- INSTRUCTION: Respond in language: ${a11yOptions.language}.`;
-  }
-
-  const prompt = `${LAWYER_PREP_SYSTEM_PROMPT}${extraInstructions}\n\n<document_content>\n${safeText}\n</document_content>`;
   return callLLM([{ role: "user", content: prompt }], config, 0.1);
 }
