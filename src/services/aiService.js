@@ -37,7 +37,22 @@ export function sanitizePromptContent(text) {
 }
 
 /**
- * Generate a cache key from messages and active configuration.
+/**
+ * Fast DJB2 bitwise hash generator for producing compact 8-character cache keys.
+ * @param {string} str - Raw string content
+ * @returns {string} Hexadecimal hash code
+ */
+function fastHash(str) {
+  let hash = 5381;
+  let i = str.length;
+  while (i) {
+    hash = (hash * 33) ^ str.charCodeAt(--i);
+  }
+  return (hash >>> 0).toString(16);
+}
+
+/**
+ * Generate a compact hash-based cache key from messages and active configuration.
  * @param {Array<Object>} messages 
  * @param {Object} config 
  * @returns {string} Cache key
@@ -45,7 +60,8 @@ export function sanitizePromptContent(text) {
 function generateCacheKey(messages, config) {
   try {
     const msgString = messages.map(m => `${m.role}:${m.content}`).join('|');
-    return `${config.endpoint}_${config.model}_${msgString}`;
+    const hashedPayload = fastHash(msgString);
+    return `${config.endpoint}_${config.model}_${hashedPayload}`;
   } catch {
     return '';
   }

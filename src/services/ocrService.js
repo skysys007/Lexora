@@ -69,14 +69,16 @@ export async function extractTextFromDocument(file, onProgress) {
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
     try {
-      let fullText = '';
-
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items.map((item) => item.str).join(' ');
-        fullText += pageText + '\n';
-      }
+      // Parallel text extraction across all PDF pages for maximum efficiency
+      const pageIndices = Array.from({ length: pdf.numPages }, (_, idx) => idx + 1);
+      const pageTexts = await Promise.all(
+        pageIndices.map(async (pageNo) => {
+          const page = await pdf.getPage(pageNo);
+          const textContent = await page.getTextContent();
+          return textContent.items.map((item) => item.str).join(' ');
+        })
+      );
+      let fullText = pageTexts.join('\n');
 
       // If text extraction yielded minimal text, fallback to OCR on scanned PDF pages
       if (fullText.trim().length < 50) {
