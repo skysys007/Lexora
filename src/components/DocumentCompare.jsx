@@ -93,7 +93,11 @@ export default function DocumentCompare({ apiConfig = DEFAULT_API_CONFIG, a11yCo
               className="compare-file-btn"
               onClick={() => fileInputARef.current?.click()}
             >
-              📁 Upload PDF / Image
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              Upload PDF / Image
             </button>
             <input
               ref={fileInputARef}
@@ -126,7 +130,11 @@ export default function DocumentCompare({ apiConfig = DEFAULT_API_CONFIG, a11yCo
               className="compare-file-btn"
               onClick={() => fileInputBRef.current?.click()}
             >
-              📁 Upload PDF / Image
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              Upload PDF / Image
             </button>
             <input
               ref={fileInputBRef}
@@ -154,7 +162,7 @@ export default function DocumentCompare({ apiConfig = DEFAULT_API_CONFIG, a11yCo
           onClick={handleRunComparison}
           disabled={isComparing || !docA.trim() || !docB.trim()}
         >
-          {isComparing ? 'Comparing Documents...' : '⚡ Compare Both Documents'}
+          {isComparing ? 'Comparing Documents...' : 'Compare Both Documents'}
         </button>
       </div>
 

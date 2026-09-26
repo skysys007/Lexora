@@ -237,7 +237,7 @@ export default function LandingPage({
               disabled={isAnalyzing}
               style={{ background: 'var(--accent-light)', color: 'var(--accent-color)', fontWeight: 600, borderColor: 'var(--accent-color)' }}
             >
-              ⚡ Compare 2 Contracts
+              Compare 2 Contracts
             </button>
           </div>
         </div>

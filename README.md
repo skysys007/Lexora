@@ -1,23 +1,23 @@
-# ⚖️ Lexora — Legal Document Intelligence & Risk Analysis
+# Lexora — Legal Document Intelligence & Risk Analysis
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://lexora-gamma-seven.vercel.app)
-[![Tests](https://img.shields.io/badge/Tests-59_Passing-brightgreen?style=for-the-badge&logo=node.js&logoColor=white)](#-testing--quality-assurance)
-[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](#-license)
-[![Accessibility](https://img.shields.io/badge/Accessibility-WCAG_2.1_AAA-purple?style=for-the-badge)](#-accessibility--inclusive-design)
+[![Tests](https://img.shields.io/badge/Tests-59_Passing-brightgreen?style=for-the-badge&logo=node.js&logoColor=white)](#testing--quality-assurance)
+[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](#license)
+[![Accessibility](https://img.shields.io/badge/Accessibility-WCAG_2.1_AAA-purple?style=for-the-badge)](#accessibility--inclusive-design)
 
 **Lexora** is an advanced, privacy-first AI legal document intelligence platform. It instantly scans, analyzes, and compares legal documents, contracts, NDAs, and leases—spotting hidden risks, unfair liabilities, ambiguous terms, and key obligations in plain English.
 
 ---
 
-## 🌐 Live Application
+## Live Application
 - **Production URL**: [https://lexora-gamma-seven.vercel.app](https://lexora-gamma-seven.vercel.app)
 - **GitHub Repository**: [https://github.com/skysys007/Lexora](https://github.com/skysys007/Lexora)
 
 ---
 
-## ✨ Key Capabilities
+## Key Capabilities
 
-### 🔍 1. Automated Risk Level & Clause Analysis
+### 1. Automated Risk Level & Clause Analysis
 - **Instant Severity Assessment**: Categorizes overall document risk as **High**, **Medium**, or **Low** with concise legal rationale.
 - **Structured Point Cards**: Identifies critical clauses with:
   - **What it means**: Plain-English explanation.
@@ -25,20 +25,20 @@
   - **Your options**: Actionable steps or negotiation strategies.
   - **Location Citation**: Exact clause/section reference.
 
-### 💬 2. Context-Grounded Document Q&A
+### 2. Context-Grounded Document Q&A
 - **Zero-Hallucination Chat**: Ask questions about any clause, obligation, or penalty.
 - **Bounded Context**: Responses are strictly anchored in the uploaded document text using `<document_content>` security tags.
 - **Multi-Turn Conversation**: Maintains conversation history for follow-up questions.
 
-### ⚡ 3. Side-by-Side Contract & Policy Comparison
+### 3. Side-by-Side Contract & Policy Comparison
 - **Diff Analysis**: Compare Document A vs Document B to spot term changes, rate hikes, or liability shifts.
 - **Favorability Assessment**: Highlights which version is more user-friendly with explicit rationale.
 
-### 🔒 4. Privacy-First Local Extraction & OCR
+### 4. Privacy-First Local Extraction & OCR
 - **PDF.js Text Engine**: Extracts embedded text directly in browser memory.
 - **Tesseract.js OCR Engine**: Scans images and scanned PDF pages locally without uploading sensitive files to third-party image processors.
 
-### ♿ 5. WCAG 2.1 AAA Accessibility Engine
+### 5. WCAG 2.1 AAA Accessibility Engine
 - **Dyslexic-Friendly Font**: Toggle OpenDyslexic typography mode.
 - **High Contrast & Font Resizing**: Custom font scaling (Normal 100%, Large 115%, XL 130%) and contrast modes.
 - **Screen Reader Announcements**: Dynamic `aria-live` polite/assertive voice feedback for vision-impaired users.
@@ -46,36 +46,36 @@
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```mermaid
 flowchart TD
-    User([👤 User]) --> WebApp[🌐 Lexora Web App - React / Vite]
+    User([User]) --> WebApp[Lexora Web App - React / Vite]
     
     subgraph Browser Memory & Local Processing
-        WebApp --> FileVal[🛡️ File Validator & Security Guard]
-        FileVal --> PDFEngine[📄 PDF.js Parallel Reader]
-        FileVal --> OCREngine[🖼️ Tesseract.js Local OCR]
+        WebApp --> FileVal[File Validator & Security Guard]
+        FileVal --> PDFEngine[PDF.js Parallel Reader]
+        FileVal --> OCREngine[Tesseract.js Local OCR]
         
-        PDFEngine --> ExtractionCache[(⚡ LRU Extraction Cache)]
+        PDFEngine --> ExtractionCache[(LRU Extraction Cache)]
         OCREngine --> ExtractionCache
     end
     
     subgraph Context Engineering & AI Layer
-        ExtractionCache --> ContextGuard[🔒 Prompt Injection Guard & Tag Sanitizer]
-        ContextGuard --> ResponseCache[(⚡ DJB2 LRU Response Cache)]
-        ContextGuard --> GroqAPI[🤖 Groq LLM API - Llama 3 70B / 8B]
+        ExtractionCache --> ContextGuard[Prompt Injection Guard & Tag Sanitizer]
+        ContextGuard --> ResponseCache[(DJB2 LRU Response Cache)]
+        ContextGuard --> GroqAPI[Groq LLM API - Llama 3 70B / 8B]
     end
     
-    GroqAPI --> RedactGuard[🔑 Credential Redactor]
+    GroqAPI --> RedactGuard[Credential Redactor]
     ResponseCache --> RedactGuard
-    RedactGuard --> UI[📊 Structured Risk UI & Export]
+    RedactGuard --> UI[Structured Risk UI & Export]
     UI --> User
 ```
 
 ---
 
-## 🔒 Security Architecture
+## Security Architecture
 
 Lexora enforces an **Architecture of Trust** to protect user privacy and system security:
 
@@ -90,7 +90,7 @@ Lexora enforces an **Architecture of Trust** to protect user privacy and system 
 
 ---
 
-## ⚡ Performance & Efficiency Optimizations
+## Performance & Efficiency Optimizations
 
 - **Parallel PDF Extraction**: Utilizes `Promise.all()` to process multi-page PDF text extraction concurrently, achieving up to 5x faster read times.
 - **Fast DJB2 Bitwise Hashing**: Generates compact 8-character hexadecimal cache keys for \(O(1)\) LRU cache lookups.
@@ -100,7 +100,7 @@ Lexora enforces an **Architecture of Trust** to protect user privacy and system 
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 - **Frontend Framework**: React 18, Vite 6
 - **Styling**: Vanilla CSS3 (Custom Design System, CSS Variables, Dark Mode)
@@ -111,7 +111,7 @@ Lexora enforces an **Architecture of Trust** to protect user privacy and system 
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 Lexora/
@@ -148,12 +148,11 @@ Lexora/
 
 ---
 
-## 🧪 Testing & Quality Assurance
+## Testing & Quality Assurance
 
 Lexora includes a comprehensive unit test suite built with Node.js test runner:
 
 ```bash
-# Run unit test suite
 npm test
 ```
 
@@ -169,7 +168,7 @@ npm test
 
 ---
 
-## 🚀 Getting Started & Local Setup
+## Getting Started & Local Setup
 
 ### Prerequisites
 - **Node.js**: v18.0.0 or higher
@@ -201,12 +200,13 @@ npm test
 
 ---
 
-## 📜 Legal Disclaimer
+## Legal Disclaimer
 
 > **IMPORTANT**: Lexora is an AI-powered legal document assistance tool intended for informational, educational, and self-help purposes only. It does not constitute legal advice, nor does it create an attorney-client relationship. Users should consult a qualified legal professional for official legal counsel.
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the [MIT License](LICENSE).
+

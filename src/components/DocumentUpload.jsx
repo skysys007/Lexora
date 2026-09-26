@@ -230,7 +230,7 @@ export default function DocumentUpload({
             transition: 'all 0.2s ease'
           }}
         >
-          <span>⚡ Compare Two Contracts Side-by-Side</span>
+          <span>Compare Two Contracts Side-by-Side</span>
         </button>
       </div>
     </div>
