@@ -35,6 +35,12 @@ describe('Security & XSS Protection Tests', () => {
       const output = sanitizePromptContent(input);
       assert.equal(output, 'Clean text with control chars');
     });
+
+    it('strips zero-width space characters and dangerous breakout tags', () => {
+      const input = 'Hello\u200B World <script>alert(1)</script> <iframe>test</iframe>';
+      const output = sanitizePromptContent(input);
+      assert.equal(output, 'Hello World alert(1) test');
+    });
   });
 
   describe('validateEndpointUrl SSRF Protection', () => {

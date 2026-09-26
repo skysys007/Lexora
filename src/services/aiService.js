@@ -22,7 +22,7 @@ export function redactSensitive(input) {
 }
 
 /**
- * Sanitize prompt text against control characters and XML tag breakout attempts.
+ * Sanitize prompt text against control characters, zero-width spaces, and XML tag breakout attempts.
  * @param {string} text - Input document text
  * @returns {string} Sanitized prompt content
  */
@@ -31,8 +31,8 @@ export function sanitizePromptContent(text) {
   return text
     .replace(/\0/g, '')
     .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
-    .replace(/<\/?document_content>/gi, '') // Prevent XML tag breakout
-    .replace(/<\/?document_[ab]>/gi, '')
+    .replace(/[\u200B-\u200D\uFEFF]/g, '') // Strip zero-width spaces & byte order marks
+    .replace(/<\/?(document_content|document_[ab]|system|script|iframe|style|object|embed)>/gi, '') // Prevent XML/HTML tag breakout
     .trim();
 }
 
